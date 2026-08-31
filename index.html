@@ -59,7 +59,7 @@
     }
 
     .app-title {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
@@ -68,7 +68,7 @@
 
     .timer-display {
       font-family: monospace;
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: var(--accent);
     }
@@ -82,7 +82,7 @@
       text-align: center;
       flex: 1;
       padding: 2rem 1.5rem;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
 
     .screen.active {
@@ -96,25 +96,31 @@
     }
 
     h2 {
-      font-size: 1.5rem;
+      font-size: 1.45rem;
       color: var(--text-main);
+    }
+
+    .meta-tag {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent);
+      background-color: rgba(56, 189, 248, 0.12);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid rgba(56, 189, 248, 0.25);
     }
 
     .reps-tag {
       font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--accent);
-      background-color: rgba(56, 189, 248, 0.1);
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      border: 1px solid rgba(56, 189, 248, 0.3);
-    }
-
-    .round-indicator {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-weight: 700;
+      color: var(--text-main);
+      background-color: #0f172a;
+      padding: 0.5rem 1.2rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
     }
 
     .media-card {
@@ -141,12 +147,13 @@
       opacity: 0.3;
     }
 
-    /* Countdown Rest */
+    /* Descanso */
     .rest-counter {
-      font-size: 4rem;
+      font-size: 4.5rem;
       font-weight: 800;
       color: var(--accent);
       font-family: monospace;
+      line-height: 1;
     }
 
     /* Botones */
@@ -170,77 +177,128 @@
     .btn-secondary {
       background-color: #334155;
       color: var(--text-main);
-      margin-top: 0.5rem;
     }
   </style>
 </head>
 <body>
 
   <div class="app-container">
+    <!-- Header Global -->
     <header class="header">
       <span class="app-title" id="headerTitle">Plan Fisioterapia</span>
       <span class="timer-display" id="globalTimer">00:00</span>
     </header>
 
+    <!-- 1. Inicio -->
     <section class="screen active" id="startScreen">
       <h1>Rutina de Fisioterapia</h1>
-      <p style="color: var(--text-muted);">Comienza tu sesión de entrenamiento y movilidad.</p>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Plan integral: Movilidad + Activación</p>
       <button class="btn" id="startBtn">Comenzar Sesión</button>
     </section>
 
+    <!-- 2. Transición de Bloque -->
     <section class="screen" id="blockScreen">
-      <div class="round-indicator">Fase Inicial</div>
-      <h2>Bloque de Movilidad</h2>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">Preparación articular y rango de movimiento.</p>
-      <button class="btn" id="startBlockBtn">Iniciar Bloque</button>
+      <span class="meta-tag" id="blockBadge">Fase 1</span>
+      <h2 id="blockTitle">Bloque de Movilidad</h2>
+      <p id="blockDescription" style="color: var(--text-muted); font-size: 0.95rem;">Preparación articular y rango de movimiento.</p>
+      <button class="btn" id="startBlockBtn">Comenzar Bloque →</button>
     </section>
 
+    <!-- 3. Ejercicio Activo -->
     <section class="screen" id="exerciseScreen">
       <div>
-        <span class="round-indicator" id="exerciseRound">Ronda 1/2</span>
-        <h2 id="exerciseName" style="margin-top: 0.3rem;">Nombre del Ejercicio</h2>
+        <span class="meta-tag" id="exerciseSubblock">Ronda 1</span>
+        <h2 id="exerciseName" style="margin-top: 0.5rem;">Nombre del Ejercicio</h2>
       </div>
 
       <div class="media-card">
         <img id="exerciseImg" src="" alt="Ejercicio" style="display: none;" />
-        <svg id="placeholderIcon" class="placeholder-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg id="placeholderIcon" class="placeholder-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
         </svg>
       </div>
 
       <div class="reps-tag" id="exerciseReps">10 repeticiones</div>
 
-      <button class="btn" id="nextExerciseBtn">Ejercicio Completado →</button>
+      <button class="btn" id="nextExerciseBtn">Ejercicio Completado ✓</button>
     </section>
 
+    <!-- 4. Descanso -->
     <section class="screen" id="restScreen">
-      <div class="round-indicator">Pausa Recuperación</div>
+      <span class="meta-tag">Recuperación</span>
       <h2>Descanso</h2>
       <div class="rest-counter" id="restCounter">30</div>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">Próxima: Segunda Ronda</p>
-      <button class="btn btn-secondary" id="skipRestBtn">Saltar Descanso</button>
+      <p id="nextUpText" style="color: var(--text-muted); font-size: 0.9rem;">Siguiente ejercicio...</p>
+      <button class="btn btn-secondary" id="skipRestBtn">Saltar Descanso ⏭</button>
     </section>
 
+    <!-- 5. Finalización -->
     <section class="screen" id="finishScreen">
-      <h2>¡Bloque Completado!</h2>
-      <p style="color: var(--text-muted);">Has finalizado el Bloque de Movilidad exitosamente.</p>
+      <h2>¡Entrenamiento Finalizado!</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Has completado los bloques de Movilidad y Activación.</p>
       <div class="reps-tag" id="finalTimeSummary">Tiempo Total: 00:00</div>
-      <button class="btn" id="restartBtn">Reiniciar</button>
+      <button class="btn" id="restartBtn">Volver al Inicio</button>
     </section>
   </div>
 
   <script>
-    // Secuencia del Bloque de Movilidad
-    // Ronda 1: 4 ejercicios | Ronda 2: 3 ejercicios (sin rotación 90/90)
-    const exerciseSequence = [
-      { name: "Rotaciones de cadera 90/90", reps: "10 repeticiones", round: "Ronda 1", img: "img/rotacion_cadera.png" },
-      { name: "Gato-camello", reps: "10 repeticiones", round: "Ronda 1", img: "img/gato_camello.png" },
-      { name: "Movilidad dorsal", reps: "5 reps por lado", round: "Ronda 1", img: "img/movilidad_dorsal.png" },
-      { name: "Movilidad de cadera y tobillo", reps: "10 reps por lado", round: "Ronda 1", img: "img/cadera_tobillo.png" },
-      { isRest: true, duration: 30 },
-      { name: "Gato-camello", reps: "10 repeticiones", round: "Ronda 2", img: "img/gato_camello.png" },
-      { name: "Movilidad dorsal", reps: "5 reps por lado", round: "Ronda 2", img: "img/movilidad_dorsal.png" },
-      { name: "Movilidad de cadera y tobillo", reps: "10 reps por lado", round: "Ronda 2", img: "img/cadera_tobillo.png" }
+    // SECUENCIA COMPLETA DEL ENTRENAMIENTO
+    const workoutSequence = [
+      // ================= BLOQUE 1: MOVILIDAD =================
+      { isBlockStart: true, title: "Bloque de Movilidad", badge: "Bloque 1/2", desc: "Preparación articular y movilidad general." },
+      
+      // Ronda 1
+      { name: "Rotaciones de cadera 90/90", reps: "10 repeticiones", meta: "Movilidad • Ronda 1", img: "img/rotacion_cadera.png" },
+      { name: "Gato-camello", reps: "10 repeticiones", meta: "Movilidad • Ronda 1", img: "img/gato_camello.png" },
+      { name: "Movilidad dorsal", reps: "5 reps x lado", meta: "Movilidad • Ronda 1", img: "img/movilidad_dorsal.png" },
+      { name: "Movilidad de cadera y tobillo", reps: "10 reps x lado", meta: "Movilidad • Ronda 1", img: "img/cadera_tobillo.png" },
+      
+      { isRest: true, duration: 30, nextLabel: "Ronda 2 de Movilidad" },
+
+      // Ronda 2 (Sin rotación 90/90)
+      { name: "Gato-camello", reps: "10 repeticiones", meta: "Movilidad • Ronda 2", img: "img/gato_camello.png" },
+      { name: "Movilidad dorsal", reps: "5 reps x lado", meta: "Movilidad • Ronda 2", img: "img/movilidad_dorsal.png" },
+      { name: "Movilidad de cadera y tobillo", reps: "10 reps x lado", meta: "Movilidad • Ronda 2", img: "img/cadera_tobillo.png" },
+
+      // ================= BLOQUE 2: ACTIVACIÓN =================
+      { isBlockStart: true, title: "Bloque de Activación", badge: "Bloque 2/2", desc: "Estabilidad central, cadena posterior y miembros inferiores." },
+
+      // Subbloque 1 (1 Serie x 10 reps)
+      { name: "Bracing", reps: "10 repeticiones", meta: "Activación • Subbloque 1 (1/1)", img: "img/bracing.png" },
+      { name: "Activación faja abdominal", reps: "10 repeticiones", meta: "Activación • Subbloque 1 (1/1)", img: "img/activacion_faja.png" },
+      { isRest: true, duration: 30, nextLabel: "Subbloque 2 - Serie 1/3" },
+
+      // Subbloque 2 - Serie 1
+      { name: "Bicho muerto con pelota", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 1/3)", img: "img/bicho_muerto.png" },
+      { name: "Puente glúteo (planta)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 1/3)", img: "img/puente_gluteo.png" },
+      { name: "Puente isquios (talones)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 1/3)", img: "img/puente_isquios.png" },
+      { isRest: true, duration: 30, nextLabel: "Subbloque 2 - Serie 2/3" },
+
+      // Subbloque 2 - Serie 2
+      { name: "Bicho muerto con pelota", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 2/3)", img: "img/bicho_muerto.png" },
+      { name: "Puente glúteo (planta)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 2/3)", img: "img/puente_gluteo.png" },
+      { name: "Puente isquios (talones)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 2/3)", img: "img/puente_isquios.png" },
+      { isRest: true, duration: 30, nextLabel: "Subbloque 2 - Serie 3/3" },
+
+      // Subbloque 2 - Serie 3
+      { name: "Bicho muerto con pelota", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 3/3)", img: "img/bicho_muerto.png" },
+      { name: "Puente glúteo (planta)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 3/3)", img: "img/puente_gluteo.png" },
+      { name: "Puente isquios (talones)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 3/3)", img: "img/puente_isquios.png" },
+      { isRest: true, duration: 30, nextLabel: "Subbloque 3 - Serie 1/3" },
+
+      // Subbloque 3 - Serie 1
+      { name: "Caminata lateral", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 1/3)", img: "img/caminata_lateral.png" },
+      { name: "Sentadilla", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 1/3)", img: "img/sentadilla.png" },
+      { isRest: true, duration: 30, nextLabel: "Subbloque 3 - Serie 2/3" },
+
+      // Subbloque 3 - Serie 2
+      { name: "Caminata lateral", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 2/3)", img: "img/caminata_lateral.png" },
+      { name: "Sentadilla", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 2/3)", img: "img/sentadilla.png" },
+      { isRest: true, duration: 30, nextLabel: "Subbloque 3 - Serie 3/3" },
+
+      // Subbloque 3 - Serie 3
+      { name: "Caminata lateral", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 3/3)", img: "img/caminata_lateral.png" },
+      { name: "Sentadilla", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 3/3)", img: "img/sentadilla.png" }
     ];
 
     let currentStep = 0;
@@ -248,7 +306,7 @@
     let globalTimerInterval = null;
     let restTimerInterval = null;
 
-    // Elementos DOM
+    // DOM Elements
     const screens = {
       start: document.getElementById('startScreen'),
       block: document.getElementById('blockScreen'),
@@ -259,12 +317,16 @@
 
     const globalTimerEl = document.getElementById('globalTimer');
     const headerTitleEl = document.getElementById('headerTitle');
+    const blockBadgeEl = document.getElementById('blockBadge');
+    const blockTitleEl = document.getElementById('blockTitle');
+    const blockDescEl = document.getElementById('blockDescription');
     const exerciseNameEl = document.getElementById('exerciseName');
     const exerciseRepsEl = document.getElementById('exerciseReps');
-    const exerciseRoundEl = document.getElementById('exerciseRound');
+    const exerciseSubblockEl = document.getElementById('exerciseSubblock');
     const exerciseImgEl = document.getElementById('exerciseImg');
     const placeholderIcon = document.getElementById('placeholderIcon');
     const restCounterEl = document.getElementById('restCounter');
+    const nextUpTextEl = document.getElementById('nextUpText');
     const finalTimeSummaryEl = document.getElementById('finalTimeSummary');
 
     function showScreen(name) {
@@ -273,9 +335,9 @@
     }
 
     function formatTime(totalSeconds) {
-      const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-      const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-      return `${minutes}:${seconds}`;
+      const min = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+      const sec = (totalSeconds % 60).toString().padStart(2, '0');
+      return `${min}:${sec}`;
     }
 
     function startGlobalTimer() {
@@ -288,43 +350,61 @@
       }, 1000);
     }
 
+    function nextStep() {
+      currentStep++;
+      displayCurrentStep();
+    }
+
     function displayCurrentStep() {
-      if (currentStep >= exerciseSequence.length) {
+      if (currentStep >= workoutSequence.length) {
         finishRoutine();
         return;
       }
 
-      const item = exerciseSequence[currentStep];
+      const item = workoutSequence[currentStep];
 
+      // Caso 1: Inicio de Bloque
+      if (item.isBlockStart) {
+        headerTitleEl.textContent = item.title;
+        blockBadgeEl.textContent = item.badge;
+        blockTitleEl.textContent = item.title;
+        blockDescEl.textContent = item.desc;
+        showScreen('block');
+        return;
+      }
+
+      // Caso 2: Descanso
       if (item.isRest) {
-        runRestPhase(item.duration);
-      } else {
-        headerTitleEl.textContent = "Movilidad";
-        exerciseNameEl.textContent = item.name;
-        exerciseRepsEl.textContent = item.reps;
-        exerciseRoundEl.textContent = item.round;
+        runRestPhase(item.duration, item.nextLabel);
+        return;
+      }
 
-        // Carga de imagen con fallback a icono neutro
-        if (item.img) {
-          exerciseImgEl.src = item.img;
-          exerciseImgEl.style.display = 'block';
-          placeholderIcon.style.display = 'none';
-          exerciseImgEl.onerror = () => {
-            exerciseImgEl.style.display = 'none';
-            placeholderIcon.style.display = 'block';
-          };
-        } else {
+      // Caso 3: Ejercicio
+      headerTitleEl.textContent = item.name;
+      exerciseNameEl.textContent = item.name;
+      exerciseRepsEl.textContent = item.reps;
+      exerciseSubblockEl.textContent = item.meta;
+
+      if (item.img) {
+        exerciseImgEl.src = item.img;
+        exerciseImgEl.style.display = 'block';
+        placeholderIcon.style.display = 'none';
+        exerciseImgEl.onerror = () => {
           exerciseImgEl.style.display = 'none';
           placeholderIcon.style.display = 'block';
-        }
-
-        showScreen('exercise');
+        };
+      } else {
+        exerciseImgEl.style.display = 'none';
+        placeholderIcon.style.display = 'block';
       }
+
+      showScreen('exercise');
     }
 
-    function runRestPhase(duration) {
+    function runRestPhase(duration, nextLabel) {
       showScreen('rest');
-      headerTitleEl.textContent = "Recuperación";
+      headerTitleEl.textContent = "Descanso";
+      nextUpTextEl.textContent = nextLabel ? `Próximo: ${nextLabel}` : "Prepárate para continuar";
       let timeLeft = duration;
       restCounterEl.textContent = timeLeft;
 
@@ -335,8 +415,7 @@
         restCounterEl.textContent = timeLeft;
         if (timeLeft <= 0) {
           clearInterval(restTimerInterval);
-          currentStep++;
-          displayCurrentStep();
+          nextStep();
         }
       }, 1000);
     }
@@ -348,26 +427,24 @@
       showScreen('finish');
     }
 
-    // Listeners
+    // Event Listeners
     document.getElementById('startBtn').addEventListener('click', () => {
       startGlobalTimer();
-      showScreen('block');
-    });
-
-    document.getElementById('startBlockBtn').addEventListener('click', () => {
       currentStep = 0;
       displayCurrentStep();
     });
 
+    document.getElementById('startBlockBtn').addEventListener('click', () => {
+      nextStep();
+    });
+
     document.getElementById('nextExerciseBtn').addEventListener('click', () => {
-      currentStep++;
-      displayCurrentStep();
+      nextStep();
     });
 
     document.getElementById('skipRestBtn').addEventListener('click', () => {
       if (restTimerInterval) clearInterval(restTimerInterval);
-      currentStep++;
-      displayCurrentStep();
+      nextStep();
     });
 
     document.getElementById('restartBtn').addEventListener('click', () => {
