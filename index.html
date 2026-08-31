@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Plan Fisio - Entrenamiento</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #22c55e;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 500px;
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      min-height: 85vh;
+    }
+
+    /* Header / Cronómetro */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+    }
+
+    .app-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .timer-display {
+      font-family: monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* Pantallas */
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      flex: 1;
+      padding: 2rem 1.5rem;
+      gap: 1.5rem;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* Elementos de contenido */
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: var(--text-main);
+    }
+
+    .reps-tag {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--accent);
+      background-color: rgba(56, 189, 248, 0.1);
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .round-indicator {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .media-card {
+      width: 100%;
+      height: 230px;
+      background-color: #0b1120;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .media-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .placeholder-svg {
+      width: 60px;
+      height: 60px;
+      opacity: 0.3;
+    }
+
+    /* Countdown Rest */
+    .rest-counter {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--accent);
+      font-family: monospace;
+    }
+
+    /* Botones */
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      background-color: var(--accent);
+      color: #0f172a;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background-color: #334155;
+      color: var(--text-main);
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header class="header">
+      <span class="app-title" id="headerTitle">Plan Fisioterapia</span>
+      <span class="timer-display" id="globalTimer">00:00</span>
+    </header>
+
+    <section class="screen active" id="startScreen">
+      <h1>Rutina de Fisioterapia</h1>
+      <p style="color: var(--text-muted);">Comienza tu sesión de entrenamiento y movilidad.</p>
+      <button class="btn" id="startBtn">Comenzar Sesión</button>
+    </section>
+
+    <section class="screen" id="blockScreen">
+      <div class="round-indicator">Fase Inicial</div>
+      <h2>Bloque de Movilidad</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Preparación articular y rango de movimiento.</p>
+      <button class="btn" id="startBlockBtn">Iniciar Bloque</button>
+    </section>
+
+    <section class="screen" id="exerciseScreen">
+      <div>
+        <span class="round-indicator" id="exerciseRound">Ronda 1/2</span>
+        <h2 id="exerciseName" style="margin-top: 0.3rem;">Nombre del Ejercicio</h2>
+      </div>
+
+      <div class="media-card">
+        <img id="exerciseImg" src="" alt="Ejercicio" style="display: none;" />
+        <svg id="placeholderIcon" class="placeholder-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+
+      <div class="reps-tag" id="exerciseReps">10 repeticiones</div>
+
+      <button class="btn" id="nextExerciseBtn">Ejercicio Completado →</button>
+    </section>
+
+    <section class="screen" id="restScreen">
+      <div class="round-indicator">Pausa Recuperación</div>
+      <h2>Descanso</h2>
+      <div class="rest-counter" id="restCounter">30</div>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Próxima: Segunda Ronda</p>
+      <button class="btn btn-secondary" id="skipRestBtn">Saltar Descanso</button>
+    </section>
+
+    <section class="screen" id="finishScreen">
+      <h2>¡Bloque Completado!</h2>
+      <p style="color: var(--text-muted);">Has finalizado el Bloque de Movilidad exitosamente.</p>
+      <div class="reps-tag" id="finalTimeSummary">Tiempo Total: 00:00</div>
+      <button class="btn" id="restartBtn">Reiniciar</button>
+    </section>
+  </div>
+
+  <script>
+    // Secuencia del Bloque de Movilidad
+    // Ronda 1: 4 ejercicios | Ronda 2: 3 ejercicios (sin rotación 90/90)
+    const exerciseSequence = [
+      { name: "Rotaciones de cadera 90/90", reps: "10 repeticiones", round: "Ronda 1", img: "img/rotacion_cadera.png" },
+      { name: "Gato-camello", reps: "10 repeticiones", round: "Ronda 1", img: "img/gato_camello.png" },
+      { name: "Movilidad dorsal", reps: "5 reps por lado", round: "Ronda 1", img: "img/movilidad_dorsal.png" },
+      { name: "Movilidad de cadera y tobillo", reps: "10 reps por lado", round: "Ronda 1", img: "img/cadera_tobillo.png" },
+      { isRest: true, duration: 30 },
+      { name: "Gato-camello", reps: "10 repeticiones", round: "Ronda 2", img: "img/gato_camello.png" },
+      { name: "Movilidad dorsal", reps: "5 reps por lado", round: "Ronda 2", img: "img/movilidad_dorsal.png" },
+      { name: "Movilidad de cadera y tobillo", reps: "10 reps por lado", round: "Ronda 2", img: "img/cadera_tobillo.png" }
+    ];
+
+    let currentStep = 0;
+    let globalSeconds = 0;
+    let globalTimerInterval = null;
+    let restTimerInterval = null;
+
+    // Elementos DOM
+    const screens = {
+      start: document.getElementById('startScreen'),
+      block: document.getElementById('blockScreen'),
+      exercise: document.getElementById('exerciseScreen'),
+      rest: document.getElementById('restScreen'),
+      finish: document.getElementById('finishScreen')
+    };
+
+    const globalTimerEl = document.getElementById('globalTimer');
+    const headerTitleEl = document.getElementById('headerTitle');
+    const exerciseNameEl = document.getElementById('exerciseName');
+    const exerciseRepsEl = document.getElementById('exerciseReps');
+    const exerciseRoundEl = document.getElementById('exerciseRound');
+    const exerciseImgEl = document.getElementById('exerciseImg');
+    const placeholderIcon = document.getElementById('placeholderIcon');
+    const restCounterEl = document.getElementById('restCounter');
+    const finalTimeSummaryEl = document.getElementById('finalTimeSummary');
+
+    function showScreen(name) {
+      Object.values(screens).forEach(s => s.classList.remove('active'));
+      screens[name].classList.add('active');
+    }
+
+    function formatTime(totalSeconds) {
+      const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+      const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    function startGlobalTimer() {
+      if (globalTimerInterval) clearInterval(globalTimerInterval);
+      globalSeconds = 0;
+      globalTimerEl.textContent = "00:00";
+      globalTimerInterval = setInterval(() => {
+        globalSeconds++;
+        globalTimerEl.textContent = formatTime(globalSeconds);
+      }, 1000);
+    }
+
+    function displayCurrentStep() {
+      if (currentStep >= exerciseSequence.length) {
+        finishRoutine();
+        return;
+      }
+
+      const item = exerciseSequence[currentStep];
+
+      if (item.isRest) {
+        runRestPhase(item.duration);
+      } else {
+        headerTitleEl.textContent = "Movilidad";
+        exerciseNameEl.textContent = item.name;
+        exerciseRepsEl.textContent = item.reps;
+        exerciseRoundEl.textContent = item.round;
+
+        // Carga de imagen con fallback a icono neutro
+        if (item.img) {
+          exerciseImgEl.src = item.img;
+          exerciseImgEl.style.display = 'block';
+          placeholderIcon.style.display = 'none';
+          exerciseImgEl.onerror = () => {
+            exerciseImgEl.style.display = 'none';
+            placeholderIcon.style.display = 'block';
+          };
+        } else {
+          exerciseImgEl.style.display = 'none';
+          placeholderIcon.style.display = 'block';
+        }
+
+        showScreen('exercise');
+      }
+    }
+
+    function runRestPhase(duration) {
+      showScreen('rest');
+      headerTitleEl.textContent = "Recuperación";
+      let timeLeft = duration;
+      restCounterEl.textContent = timeLeft;
+
+      if (restTimerInterval) clearInterval(restTimerInterval);
+
+      restTimerInterval = setInterval(() => {
+        timeLeft--;
+        restCounterEl.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(restTimerInterval);
+          currentStep++;
+          displayCurrentStep();
+        }
+      }, 1000);
+    }
+
+    function finishRoutine() {
+      if (globalTimerInterval) clearInterval(globalTimerInterval);
+      finalTimeSummaryEl.textContent = `Tiempo Total: ${formatTime(globalSeconds)}`;
+      headerTitleEl.textContent = "Completado";
+      showScreen('finish');
+    }
+
+    // Listeners
+    document.getElementById('startBtn').addEventListener('click', () => {
+      startGlobalTimer();
+      showScreen('block');
+    });
+
+    document.getElementById('startBlockBtn').addEventListener('click', () => {
+      currentStep = 0;
+      displayCurrentStep();
+    });
+
+    document.getElementById('nextExerciseBtn').addEventListener('click', () => {
+      currentStep++;
+      displayCurrentStep();
+    });
+
+    document.getElementById('skipRestBtn').addEventListener('click', () => {
+      if (restTimerInterval) clearInterval(restTimerInterval);
+      currentStep++;
+      displayCurrentStep();
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      headerTitleEl.textContent = "Plan Fisioterapia";
+      globalTimerEl.textContent = "00:00";
+      showScreen('start');
+    });
+  </script>
+</body>
+</html>
