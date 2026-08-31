@@ -90,7 +90,7 @@
     }
 
     h1 {
-      font-size: 1.75rem;
+      font-size: 1.6rem;
       font-weight: 700;
     }
 
@@ -174,7 +174,7 @@
       color: var(--accent);
     }
 
-    /* Botones de selección de tiempo (Plancha) */
+    /* Selector de duración para Puente Isométrico */
     .time-selector-group {
       display: flex;
       gap: 0.5rem;
@@ -200,7 +200,37 @@
       border-color: #38bdf8;
     }
 
-    /* Botones */
+    /* Menú selector de bloques */
+    .menu-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .menu-btn {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background-color: #1e293b;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .menu-btn:hover {
+      border-color: var(--accent);
+      background-color: #243248;
+    }
+
+    /* Botones generales */
     .btn {
       width: 100%;
       padding: 0.95rem;
@@ -239,25 +269,45 @@
       <span class="timer-display" id="globalTimer">00:00</span>
     </header>
 
-    <!-- 1. Pantalla Inicio -->
+    <!-- 1. Pantalla Inicio con Selector de Bloques -->
     <section class="screen active" id="startScreen">
-      <h1>Rutina Completa</h1>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">Movilidad • Activación • Elongación • Core & Fuerza</p>
-      <button class="btn" id="startBtn">Comenzar Sesión</button>
+      <h1>Rutina de Fisioterapia</h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Selecciona una opción para comenzar:</p>
+
+      <button class="btn" id="startAllBtn" style="margin-top: 0.3rem;">Rutina Completa (Bloques 1 al 4)</button>
+
+      <div class="menu-list">
+        <button class="menu-btn" data-block="1">
+          <span>1. Movilidad</span>
+          <span style="color: var(--accent);">→</span>
+        </button>
+        <button class="menu-btn" data-block="2">
+          <span>2. Activación</span>
+          <span style="color: var(--accent);">→</span>
+        </button>
+        <button class="menu-btn" data-block="3">
+          <span>3. Elongación</span>
+          <span style="color: var(--accent);">→</span>
+        </button>
+        <button class="menu-btn" data-block="4" style="border-color: rgba(56, 189, 248, 0.4); background-color: rgba(56, 189, 248, 0.05);">
+          <span>4. Abdominales y Flexiones</span>
+          <span style="color: var(--accent);">★ →</span>
+        </button>
+      </div>
     </section>
 
     <!-- 2. Transición de Bloque -->
     <section class="screen" id="blockScreen">
-      <span class="meta-tag" id="blockBadge">Bloque 1/4</span>
-      <h2 id="blockTitle">Bloque de Movilidad</h2>
-      <p id="blockDescription" style="color: var(--text-muted); font-size: 0.95rem;">Preparación articular y rango de movimiento.</p>
+      <span class="meta-tag" id="blockBadge">Bloque</span>
+      <h2 id="blockTitle">Título del Bloque</h2>
+      <p id="blockDescription" style="color: var(--text-muted); font-size: 0.95rem;">Descripción del bloque.</p>
       <button class="btn" id="startBlockBtn">Comenzar Bloque →</button>
     </section>
 
     <!-- 3. Pantalla de Ejercicio -->
     <section class="screen" id="exerciseScreen">
       <div>
-        <span class="meta-tag" id="exerciseSubblock">Ronda 1</span>
+        <span class="meta-tag" id="exerciseSubblock">Serie</span>
         <h2 id="exerciseName" style="margin-top: 0.4rem;">Nombre del Ejercicio</h2>
       </div>
 
@@ -273,9 +323,9 @@
 
       <!-- Selector de duración para Puente Isométrico -->
       <div id="isomOptions" class="time-selector-group" style="display: none;">
-        <button class="time-chip" data-time="30">30 seg</button>
-        <button class="time-chip active" data-time="45">45 seg</button>
-        <button class="time-chip" data-time="60">60 seg</button>
+        <button class="time-chip" data-time="30">30s</button>
+        <button class="time-chip active" data-time="45">45s</button>
+        <button class="time-chip" data-time="60">60s</button>
       </div>
 
       <!-- Modo Temporizador (Elongación / Plancha) -->
@@ -306,37 +356,34 @@
 
     <!-- 5. Finalización -->
     <section class="screen" id="finishScreen">
-      <h2>¡Plan Completado con Éxito!</h2>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">Has finalizado los 4 bloques de tu sesión.</p>
+      <h2>¡Entrenamiento Completado!</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">Has finalizado la sesión programada.</p>
       <div class="reps-tag" id="finalTimeSummary">Tiempo Total: 00:00</div>
-      <button class="btn" id="restartBtn">Volver al Inicio</button>
+      <button class="btn" id="restartBtn">Volver al Menú</button>
     </section>
   </div>
 
   <script>
-    // SECUENCIA INTEGRAL DE LOS 4 BLOQUES
-    const workoutSequence = [
-      // ================= BLOQUE 1: MOVILIDAD =================
-      { isBlockStart: true, title: "Bloque de Movilidad", badge: "Bloque 1/4", desc: "Preparación articular y rango de movimiento." },
-      
+    // BLOQUE 1: MOVILIDAD
+    const block1 = [
+      { isBlockStart: true, title: "Bloque de Movilidad", badge: "Bloque 1", desc: "Preparación articular y rango de movimiento." },
       { name: "Rotaciones de cadera 90/90", reps: "10 repeticiones", meta: "Movilidad • Ronda 1", img: "img/rotacion_cadera.png" },
       { name: "Gato-camello", reps: "10 repeticiones", meta: "Movilidad • Ronda 1", img: "img/gato_camello.png" },
       { name: "Movilidad dorsal", reps: "5 reps x lado", meta: "Movilidad • Ronda 1", img: "img/movilidad_dorsal.png" },
       { name: "Movilidad de cadera y tobillo", reps: "10 reps x lado", meta: "Movilidad • Ronda 1", img: "img/cadera_tobillo.png" },
       { isRest: true, duration: 30, nextLabel: "Ronda 2 de Movilidad" },
-
       { name: "Gato-camello", reps: "10 repeticiones", meta: "Movilidad • Ronda 2", img: "img/gato_camello.png" },
       { name: "Movilidad dorsal", reps: "5 reps x lado", meta: "Movilidad • Ronda 2", img: "img/movilidad_dorsal.png" },
-      { name: "Movilidad de cadera y tobillo", reps: "10 reps x lado", meta: "Movilidad • Ronda 2", img: "img/cadera_tobillo.png" },
+      { name: "Movilidad de cadera y tobillo", reps: "10 reps x lado", meta: "Movilidad • Ronda 2", img: "img/cadera_tobillo.png" }
+    ];
 
-      // ================= BLOQUE 2: ACTIVACIÓN =================
-      { isBlockStart: true, title: "Bloque de Activación", badge: "Bloque 2/4", desc: "Estabilidad central, cadena posterior y miembros inferiores." },
-
+    // BLOQUE 2: ACTIVACIÓN
+    const block2 = [
+      { isBlockStart: true, title: "Bloque de Activación", badge: "Bloque 2", desc: "Estabilidad central, cadena posterior y miembros inferiores." },
       { name: "Bracing", reps: "10 repeticiones", meta: "Activación • Subbloque 1", img: "img/bracing.png" },
       { name: "Activación faja abdominal", reps: "10 repeticiones", meta: "Activación • Subbloque 1", img: "img/activacion_faja.png" },
       { isRest: true, duration: 30, nextLabel: "Subbloque 2 - Serie 1/3" },
 
-      // Subbloque 2 (3 Series)
       { name: "Bicho muerto con pelota", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 1/3)", img: "img/bicho_muerto.png" },
       { name: "Puente glúteo (planta)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 1/3)", img: "img/puente_gluteo.png" },
       { name: "Puente isquios (talones)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 1/3)", img: "img/puente_isquios.png" },
@@ -352,7 +399,6 @@
       { name: "Puente isquios (talones)", reps: "8 repeticiones", meta: "Activación • Subbloque 2 (Serie 3/3)", img: "img/puente_isquios.png" },
       { isRest: true, duration: 30, nextLabel: "Subbloque 3 - Serie 1/3" },
 
-      // Subbloque 3 (3 Series)
       { name: "Caminata lateral", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 1/3)", img: "img/caminata_lateral.png" },
       { name: "Sentadilla", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 1/3)", img: "img/sentadilla.png" },
       { isRest: true, duration: 30, nextLabel: "Subbloque 3 - Serie 2/3" },
@@ -362,64 +408,60 @@
       { isRest: true, duration: 30, nextLabel: "Subbloque 3 - Serie 3/3" },
 
       { name: "Caminata lateral", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 3/3)", img: "img/caminata_lateral.png" },
-      { name: "Sentadilla", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 3/3)", img: "img/sentadilla.png" },
+      { name: "Sentadilla", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 3/3)", img: "img/sentadilla.png" }
+    ];
 
-      // ================= BLOQUE 3: ELONGACIÓN =================
-      { isBlockStart: true, title: "Bloque de Elongación", badge: "Bloque 3/4", desc: "Flexibilidad y vuelta a la calma (2 series x 30s c/u)." },
-
+    // BLOQUE 3: ELONGACIÓN
+    const block3 = [
+      { isBlockStart: true, title: "Bloque de Elongación", badge: "Bloque 3", desc: "Flexibilidad y recuperación (2 series x 30s c/u)." },
       { isStretch: true, name: "Elongación pierna extendida", totalReps: 2, holdTime: 30, meta: "Elongación (1/9)", img: "img/elong_pierna_extendida.png" },
       { isRest: true, duration: 30, nextLabel: "Elongación isquios acostado" },
-
       { isStretch: true, name: "Elongación isquios acostado", totalReps: 2, holdTime: 30, meta: "Elongación (2/9)", img: "img/elong_isquios_acostado.png" },
       { isRest: true, duration: 30, nextLabel: "Elongación isquios pared" },
-
       { isStretch: true, name: "Elongación isquios pared", totalReps: 2, holdTime: 30, meta: "Elongación (3/9)", img: "img/elong_isquios_pared.png" },
       { isRest: true, duration: 30, nextLabel: "Elongación glúteo flexionado" },
-
       { isStretch: true, name: "Elongación glúteo flexionado", totalReps: 2, holdTime: 30, meta: "Elongación (4/9)", img: "img/elong_gluteo_flexionado.png" },
       { isRest: true, duration: 30, nextLabel: "Elongación glúteo costado" },
-
       { isStretch: true, name: "Elongación glúteo costado", totalReps: 2, holdTime: 30, meta: "Elongación (5/9)", img: "img/elong_gluteo_costado.png" },
       { isRest: true, duration: 30, nextLabel: "Elongación cuádriceps" },
-
       { isStretch: true, name: "Elongación cuádriceps", totalReps: 2, holdTime: 30, meta: "Elongación (6/9)", img: "img/elong_cuadriceps.png" },
       { isRest: true, duration: 30, nextLabel: "Elongación glúteo pierna cruzada" },
-
       { isStretch: true, name: "Elongación glúteo pierna cruzada", totalReps: 2, holdTime: 30, meta: "Elongación (7/9)", img: "img/elong_gluteo_cruzada.png" },
       { isRest: true, duration: 30, nextLabel: "Elongación isquio pierna estirada" },
-
       { isStretch: true, name: "Elongación isquio pierna estirada", totalReps: 2, holdTime: 30, meta: "Elongación (8/9)", img: "img/elong_isquio_estirada.png" },
       { isRest: true, duration: 30, nextLabel: "Posición del niño" },
+      { isStretch: true, name: "Posición del niño", totalReps: 2, holdTime: 30, meta: "Elongación (9/9)", img: "img/posicion_nino.png" }
+    ];
 
-      { isStretch: true, name: "Posición del niño", totalReps: 2, holdTime: 30, meta: "Elongación (9/9)", img: "img/posicion_nino.png" },
+    // BLOQUE 4: ABDOMINALES Y FLEXIONES DE BRAZO
+    const block4 = [
+      { isBlockStart: true, title: "Abdominales y Flexiones", badge: "Bloque 4", desc: "Core, fuerza y resistencia (3 series en circuito)." },
 
-      // ================= BLOQUE 4: ABDOMINALES Y FLEXIONES =================
-      { isBlockStart: true, title: "Abdominales y Flexiones de Brazo", badge: "Bloque 4/4", desc: "Fuerza y resistencia muscular en circuito (3 series)." },
-
-      // Serie 1/3
+      // Serie 1
       { name: "Abdominales cortitos", reps: "50 repeticiones", meta: "Core & Fuerza • Serie 1/3", img: "img/abdominales_cortitos.png" },
       { name: "Flexiones de brazo", reps: "20 repeticiones", meta: "Core & Fuerza • Serie 1/3", img: "img/flexiones_brazo.png" },
       { isIsometric: true, name: "Puente isométrico", totalReps: 1, defaultHold: 45, meta: "Core & Fuerza • Serie 1/3", img: "img/puente_isometrico.png" },
       { isRest: true, duration: 30, nextLabel: "Core & Fuerza - Serie 2/3" },
 
-      // Serie 2/3
+      // Serie 2
       { name: "Abdominales cortitos", reps: "50 repeticiones", meta: "Core & Fuerza • Serie 2/3", img: "img/abdominales_cortitos.png" },
       { name: "Flexiones de brazo", reps: "20 repeticiones", meta: "Core & Fuerza • Serie 2/3", img: "img/flexiones_brazo.png" },
       { isIsometric: true, name: "Puente isométrico", totalReps: 1, defaultHold: 45, meta: "Core & Fuerza • Serie 2/3", img: "img/puente_isometrico.png" },
       { isRest: true, duration: 30, nextLabel: "Core & Fuerza - Serie 3/3" },
 
-      // Serie 3/3
+      // Serie 3
       { name: "Abdominales cortitos", reps: "50 repeticiones", meta: "Core & Fuerza • Serie 3/3", img: "img/abdominales_cortitos.png" },
       { name: "Flexiones de brazo", reps: "20 repeticiones", meta: "Core & Fuerza • Serie 3/3", img: "img/flexiones_brazo.png" },
       { isIsometric: true, name: "Puente isométrico", totalReps: 1, defaultHold: 45, meta: "Core & Fuerza • Serie 3/3", img: "img/puente_isometrico.png" }
     ];
 
+    let currentSequence = [];
     let currentStep = 0;
     let globalSeconds = 0;
     let globalTimerInterval = null;
     let restTimerInterval = null;
 
-    // Variables de ejercicios temporizados (Elongación / Plancha)
+    // Variables temporizadas
     let currentRep = 1;
     let totalRepsInExercise = 1;
     let activeSecondsLeft = 30;
@@ -450,7 +492,6 @@
     const nextUpTextEl = document.getElementById('nextUpText');
     const finalTimeSummaryEl = document.getElementById('finalTimeSummary');
 
-    // Modos temporizados
     const timerBox = document.getElementById('timerBox');
     const timedRepLabel = document.getElementById('timedRepLabel');
     const activeTimerNum = document.getElementById('activeTimerNum');
@@ -480,6 +521,13 @@
       }, 1000);
     }
 
+    function startRoutineWith(seq) {
+      currentSequence = seq;
+      currentStep = 0;
+      startGlobalTimer();
+      displayCurrentStep();
+    }
+
     function nextStep() {
       if (activeTimerInterval) clearInterval(activeTimerInterval);
       currentStep++;
@@ -487,12 +535,12 @@
     }
 
     function displayCurrentStep() {
-      if (currentStep >= workoutSequence.length) {
+      if (currentStep >= currentSequence.length) {
         finishRoutine();
         return;
       }
 
-      const item = workoutSequence[currentStep];
+      const item = currentSequence[currentStep];
 
       // Caso 1: Inicio de Bloque
       if (item.isBlockStart) {
@@ -510,19 +558,19 @@
         return;
       }
 
-      // Caso 3: Puente Isométrico (Selector de tiempo)
+      // Caso 3: Puente Isométrico
       if (item.isIsometric) {
         setupIsometricExercise(item);
         return;
       }
 
-      // Caso 4: Elongación (2 x 30s)
+      // Caso 4: Elongación
       if (item.isStretch) {
         setupStretchExercise(item);
         return;
       }
 
-      // Caso 5: Ejercicio estándar con repeticiones
+      // Caso 5: Estándar
       setupStandardExercise(item);
     }
 
@@ -646,12 +694,28 @@
 
     function finishRoutine() {
       if (globalTimerInterval) clearInterval(globalTimerInterval);
+      if (activeTimerInterval) clearInterval(activeTimerInterval);
       finalTimeSummaryEl.textContent = `Tiempo Total: ${formatTime(globalSeconds)}`;
       headerTitleEl.textContent = "Completado";
       showScreen('finish');
     }
 
-    // Configuración selector de tiempo (Puente isométrico)
+    // Botones del Menú Principal
+    document.getElementById('startAllBtn').addEventListener('click', () => {
+      startRoutineWith([...block1, ...block2, ...block3, ...block4]);
+    });
+
+    document.querySelectorAll('.menu-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const blockId = e.currentTarget.dataset.block;
+        if (blockId === "1") startRoutineWith(block1);
+        if (blockId === "2") startRoutineWith(block2);
+        if (blockId === "3") startRoutineWith(block3);
+        if (blockId === "4") startRoutineWith(block4);
+      });
+    });
+
+    // Selector de tiempo para Plancha
     document.querySelectorAll('.time-chip').forEach(chip => {
       chip.addEventListener('click', (e) => {
         document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('active'));
@@ -661,20 +725,9 @@
       });
     });
 
-    // Listeners Generales
-    document.getElementById('startBtn').addEventListener('click', () => {
-      startGlobalTimer();
-      currentStep = 0;
-      displayCurrentStep();
-    });
-
-    document.getElementById('startBlockBtn').addEventListener('click', () => {
-      nextStep();
-    });
-
-    document.getElementById('nextExerciseBtn').addEventListener('click', () => {
-      nextStep();
-    });
+    // Controles de navegación
+    document.getElementById('startBlockBtn').addEventListener('click', () => nextStep());
+    document.getElementById('nextExerciseBtn').addEventListener('click', () => nextStep());
 
     document.getElementById('skipRestBtn').addEventListener('click', () => {
       if (restTimerInterval) clearInterval(restTimerInterval);
@@ -687,7 +740,7 @@
     });
 
     document.getElementById('skipTimedBtn').addEventListener('click', () => {
-      const item = workoutSequence[currentStep];
+      const item = currentSequence[currentStep];
       if (item && item.isStretch && currentRep < totalRepsInExercise) {
         currentRep++;
         runCountdown(item.holdTime);
