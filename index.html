@@ -57,10 +57,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.1rem 1.4rem;
+      padding: 1rem 1.25rem;
       border-bottom: 1px solid var(--border-soft);
       background: rgba(21, 16, 42, 0.75);
       backdrop-filter: blur(12px);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
     }
 
     .app-title {
@@ -74,39 +80,40 @@
     .header-controls {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.6rem;
     }
 
     .timer-display {
       font-family: "SF Mono", Monaco, Consolas, monospace;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--color-5);
       letter-spacing: 0.05em;
     }
 
-    .pause-global-btn {
+    /* Botones de Cabecera */
+    .header-btn {
       background: var(--bg-surface);
       border: 1px solid var(--border-soft);
       color: var(--color-4);
       border-radius: 8px;
-      padding: 0.35rem 0.65rem;
+      padding: 0.35rem 0.6rem;
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.3rem;
+      gap: 0.25rem;
       transition: all 0.2s ease;
     }
 
-    .pause-global-btn:hover {
+    .header-btn:hover {
       border-color: var(--color-3);
       color: var(--color-5);
     }
 
-    .pause-global-btn.active-pause {
+    .header-btn.active-pause {
       background-color: var(--color-1);
       color: #fff;
       border-color: var(--color-3);
@@ -219,7 +226,7 @@
       color: var(--color-5);
     }
 
-    /* Selector de duración (Puente Isométrico) */
+    /* Selector duración puente */
     .time-selector-group {
       display: flex;
       gap: 0.5rem;
@@ -328,11 +335,17 @@
 <body>
 
   <div class="app-container">
-    <!-- Header Global -->
+    <!-- Header Global con Botón Inicio & Pausa -->
     <header class="header">
-      <span class="app-title" id="headerTitle">Plan Fisioterapia</span>
+      <div class="header-left">
+        <button class="header-btn" id="homeNavBtn" style="display: none;">
+          ✕ Salir
+        </button>
+        <span class="app-title" id="headerTitle">Plan Fisio</span>
+      </div>
+
       <div class="header-controls">
-        <button class="pause-global-btn" id="globalPauseBtn" style="display: none;">
+        <button class="header-btn" id="globalPauseBtn" style="display: none;">
           <span id="pauseBtnIcon">❚❚</span> <span id="pauseBtnLabel">Pausar</span>
         </button>
         <span class="timer-display" id="globalTimer">00:00</span>
@@ -430,7 +443,7 @@
   </div>
 
   <script>
-    // BLOQUE 1: MOVILIDAD
+    // BLOQUE 1: MOVILIDAD[cite: 1]
     const block1 = [
       { isBlockStart: true, title: "Bloque de Movilidad", badge: "Bloque 1", desc: "Preparación articular y rango de movimiento." },
       { name: "Rotaciones de cadera 90/90", reps: "10 repeticiones", meta: "Movilidad • Ronda 1", img: "img/rotacion_cadera.png" },
@@ -443,7 +456,7 @@
       { name: "Movilidad de cadera y tobillo", reps: "10 reps x lado", meta: "Movilidad • Ronda 2", img: "img/cadera_tobillo.png" }
     ];
 
-    // BLOQUE 2: ACTIVACIÓN
+    // BLOQUE 2: ACTIVACIÓN[cite: 1]
     const block2 = [
       { isBlockStart: true, title: "Bloque de Activación", badge: "Bloque 2", desc: "Estabilidad central, cadena posterior y miembros inferiores." },
       { name: "Bracing", reps: "10 repeticiones", meta: "Activación • Subbloque 1", img: "img/bracing.png" },
@@ -477,7 +490,7 @@
       { name: "Sentadilla", reps: "10 repeticiones", meta: "Activación • Subbloque 3 (Serie 3/3)", img: "img/sentadilla.png" }
     ];
 
-    // BLOQUE 3: ELONGACIÓN
+    // BLOQUE 3: ELONGACIÓN[cite: 1]
     const block3 = [
       { isBlockStart: true, title: "Bloque de Elongación", badge: "Bloque 3", desc: "Flexibilidad y recuperación (2 series x 30s c/u)." },
       { isStretch: true, name: "Elongación pierna extendida", totalReps: 2, holdTime: 30, meta: "Elongación (1/9)", img: "img/elong_pierna_extendida.png" },
@@ -502,7 +515,6 @@
     // BLOQUE 4: ABDOMINALES Y FLEXIONES DE BRAZO
     const block4 = [
       { isBlockStart: true, title: "Abdominales y Flexiones", badge: "Bloque 4", desc: "Core, fuerza y resistencia (3 series en circuito)." },
-
       { name: "Abdominales cortitos", reps: "50 repeticiones", meta: "Core & Fuerza • Serie 1/3", img: "img/abdominales_cortitos.png" },
       { name: "Flexiones de brazo", reps: "20 repeticiones", meta: "Core & Fuerza • Serie 1/3", img: "img/flexiones_brazo.png" },
       { isIsometric: true, name: "Puente isométrico", totalReps: 1, defaultHold: 45, meta: "Core & Fuerza • Serie 1/3", img: "img/puente_isometrico.png" },
@@ -544,6 +556,7 @@
 
     const globalTimerEl = document.getElementById('globalTimer');
     const headerTitleEl = document.getElementById('headerTitle');
+    const homeNavBtn = document.getElementById('homeNavBtn');
     const globalPauseBtn = document.getElementById('globalPauseBtn');
     const pauseBtnIcon = document.getElementById('pauseBtnIcon');
     const pauseBtnLabel = document.getElementById('pauseBtnLabel');
@@ -585,6 +598,9 @@
       globalTimerEl.textContent = "00:00";
       isGlobalPaused = false;
       updatePauseUI();
+      
+      // Mostrar controles en header
+      homeNavBtn.style.display = 'inline-flex';
       globalPauseBtn.style.display = 'inline-flex';
 
       globalTimerInterval = setInterval(() => {
@@ -780,12 +796,35 @@
       if (activeTimerInterval) clearInterval(activeTimerInterval);
       if (restTimerInterval) clearInterval(restTimerInterval);
       globalPauseBtn.style.display = 'none';
+      homeNavBtn.style.display = 'none';
       finalTimeSummaryEl.textContent = `Tiempo Total: ${formatTime(globalSeconds)}`;
       headerTitleEl.textContent = "Completado";
       showScreen('finish');
     }
 
-    // Botón de Pausa Global
+    function returnToHome() {
+      if (globalTimerInterval) clearInterval(globalTimerInterval);
+      if (activeTimerInterval) clearInterval(activeTimerInterval);
+      if (restTimerInterval) clearInterval(restTimerInterval);
+      
+      globalSeconds = 0;
+      globalTimerEl.textContent = "00:00";
+      headerTitleEl.textContent = "Plan Fisio";
+      homeNavBtn.style.display = 'none';
+      globalPauseBtn.style.display = 'none';
+      isGlobalPaused = false;
+      showScreen('start');
+    }
+
+    // Botón Salir / Volver al Inicio
+    homeNavBtn.addEventListener('click', () => {
+      const confirmExit = confirm("¿Deseas detener el entrenamiento y volver al inicio?");
+      if (confirmExit) {
+        returnToHome();
+      }
+    });
+
+    // Botón Pausa Global
     globalPauseBtn.addEventListener('click', () => {
       isGlobalPaused = !isGlobalPaused;
       updatePauseUI();
@@ -841,10 +880,7 @@
     });
 
     document.getElementById('restartBtn').addEventListener('click', () => {
-      headerTitleEl.textContent = "Plan Fisioterapia";
-      globalTimerEl.textContent = "00:00";
-      globalPauseBtn.style.display = 'none';
-      showScreen('start');
+      returnToHome();
     });
   </script>
 </body>
