@@ -57,7 +57,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 1.25rem;
+      padding: 0.9rem 1.1rem;
       border-bottom: 1px solid var(--border-soft);
       background: rgba(21, 16, 42, 0.75);
       backdrop-filter: blur(12px);
@@ -66,7 +66,7 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
 
     .app-title {
@@ -80,15 +80,16 @@
     .header-controls {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.45rem;
     }
 
     .timer-display {
       font-family: "SF Mono", Monaco, Consolas, monospace;
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 700;
       color: var(--color-5);
       letter-spacing: 0.05em;
+      margin-left: 0.2rem;
     }
 
     /* Botones de Cabecera */
@@ -97,7 +98,7 @@
       border: 1px solid var(--border-soft);
       color: var(--color-4);
       border-radius: 8px;
-      padding: 0.35rem 0.6rem;
+      padding: 0.35rem 0.55rem;
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
@@ -117,6 +118,12 @@
       background-color: var(--color-1);
       color: #fff;
       border-color: var(--color-3);
+    }
+
+    .header-btn.muted {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.4);
+      background-color: rgba(239, 68, 68, 0.08);
     }
 
     /* Pantallas */
@@ -335,7 +342,7 @@
 <body>
 
   <div class="app-container">
-    <!-- Header Global con Botón Inicio & Pausa -->
+    <!-- Header Global -->
     <header class="header">
       <div class="header-left">
         <button class="header-btn" id="homeNavBtn" style="display: none;">
@@ -345,9 +352,16 @@
       </div>
 
       <div class="header-controls">
+        <!-- Botón Modo Silencio -->
+        <button class="header-btn" id="soundToggleBtn" title="Activar/Silenciar sonido">
+          <span id="soundBtnIcon">🔔</span> <span id="soundBtnLabel">Sonido</span>
+        </button>
+        
+        <!-- Botón Pausa -->
         <button class="header-btn" id="globalPauseBtn" style="display: none;">
           <span id="pauseBtnIcon">❚❚</span> <span id="pauseBtnLabel">Pausar</span>
         </button>
+        
         <span class="timer-display" id="globalTimer">00:00</span>
       </div>
     </header>
@@ -536,6 +550,7 @@
     let globalTimerInterval = null;
     let restTimerInterval = null;
     let isGlobalPaused = false;
+    let isMuted = false;
 
     // Variables temporizadas
     let currentRep = 1;
@@ -544,6 +559,47 @@
     let activeTimerInterval = null;
     let isTimerPaused = false;
     let userChosenPlankTime = 45;
+
+    // Web Audio API Context
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    // Alarma Sonora: Pitido de fin de descanso
+    function playAlarmSound() {
+      if (isMuted) return;
+      initAudio();
+
+      const beeps = [
+        { freq: 880, start: 0, duration: 0.12 },
+        { freq: 880, start: 0.18, duration: 0.12 },
+        { freq: 1174.66, start: 0.36, duration: 0.35 }
+      ];
+
+      beeps.forEach(b => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(b.freq, audioCtx.currentTime + b.start);
+
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + b.start);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + b.start + b.duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(audioCtx.currentTime + b.start);
+        osc.stop(audioCtx.currentTime + b.start + b.duration);
+      });
+    }
 
     // Elementos DOM
     const screens = {
@@ -557,6 +613,13 @@
     const globalTimerEl = document.getElementById('globalTimer');
     const headerTitleEl = document.getElementById('headerTitle');
     const homeNavBtn = document.getElementById('homeNavBtn');
+    
+    // Sonido
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const soundBtnIcon = document.getElementById('soundBtnIcon');
+    const soundBtnLabel = document.getElementById('soundBtnLabel');
+
+    // Pausa
     const globalPauseBtn = document.getElementById('globalPauseBtn');
     const pauseBtnIcon = document.getElementById('pauseBtnIcon');
     const pauseBtnLabel = document.getElementById('pauseBtnLabel');
@@ -599,7 +662,6 @@
       isGlobalPaused = false;
       updatePauseUI();
       
-      // Mostrar controles en header
       homeNavBtn.style.display = 'inline-flex';
       globalPauseBtn.style.display = 'inline-flex';
 
@@ -623,7 +685,22 @@
       }
     }
 
+    function toggleMute() {
+      isMuted = !isMuted;
+      if (isMuted) {
+        soundToggleBtn.classList.add('muted');
+        soundBtnIcon.textContent = "🔕";
+        soundBtnLabel.textContent = "Mudo";
+      } else {
+        soundToggleBtn.classList.remove('muted');
+        soundBtnIcon.textContent = "🔔";
+        soundBtnLabel.textContent = "Sonido";
+        initAudio();
+      }
+    }
+
     function startRoutineWith(seq) {
+      initAudio();
       currentSequence = seq;
       currentStep = 0;
       startGlobalTimer();
@@ -785,6 +862,7 @@
           restCounterEl.textContent = timeLeft;
           if (timeLeft <= 0) {
             clearInterval(restTimerInterval);
+            playAlarmSound();
             nextStep();
           }
         }
@@ -816,7 +894,9 @@
       showScreen('start');
     }
 
-    // Botón Salir / Volver al Inicio
+    // Eventos
+    soundToggleBtn.addEventListener('click', toggleMute);
+
     homeNavBtn.addEventListener('click', () => {
       const confirmExit = confirm("¿Deseas detener el entrenamiento y volver al inicio?");
       if (confirmExit) {
@@ -824,7 +904,6 @@
       }
     });
 
-    // Botón Pausa Global
     globalPauseBtn.addEventListener('click', () => {
       isGlobalPaused = !isGlobalPaused;
       updatePauseUI();
