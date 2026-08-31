@@ -352,12 +352,10 @@
       </div>
 
       <div class="header-controls">
-        <!-- Botón Modo Silencio -->
         <button class="header-btn" id="soundToggleBtn" title="Activar/Silenciar sonido">
           <span id="soundBtnIcon">🔔</span> <span id="soundBtnLabel">Sonido</span>
         </button>
         
-        <!-- Botón Pausa -->
         <button class="header-btn" id="globalPauseBtn" style="display: none;">
           <span id="pauseBtnIcon">❚❚</span> <span id="pauseBtnLabel">Pausar</span>
         </button>
@@ -441,10 +439,10 @@
     <!-- 4. Pantalla de Descanso -->
     <section class="screen" id="restScreen">
       <span class="meta-tag">Recuperación</span>
-      <h2>Descanso</h2>
+      <h2 id="restTitle">Descanso</h2>
       <div class="rest-counter" id="restCounter">30</div>
       <p id="nextUpText" style="color: var(--text-muted); font-size: 0.9rem;">Siguiente ejercicio...</p>
-      <button class="btn btn-secondary" id="skipRestBtn">Saltar Descanso →</button>
+      <button class="btn" id="skipRestBtn">Saltar Descanso →</button>
     </section>
 
     <!-- 5. Pantalla Final -->
@@ -560,7 +558,7 @@
     let isTimerPaused = false;
     let userChosenPlankTime = 45;
 
-    // Web Audio API Context
+    // Audio Context
     let audioCtx = null;
 
     function initAudio() {
@@ -572,33 +570,36 @@
       }
     }
 
-    // Alarma Sonora: Pitido de fin de descanso
+    // Alarma Sonora: 3 ráfagas consecutivas
     function playAlarmSound() {
       if (isMuted) return;
       initAudio();
 
       const beeps = [
-        { freq: 880, start: 0, duration: 0.12 },
-        { freq: 880, start: 0.18, duration: 0.12 },
-        { freq: 1174.66, start: 0.36, duration: 0.35 }
+        { freq: 880, start: 0, duration: 0.1 },
+        { freq: 880, start: 0.15, duration: 0.1 },
+        { freq: 1174.66, start: 0.3, duration: 0.25 }
       ];
 
-      beeps.forEach(b => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+      for (let burst = 0; burst < 3; burst++) {
+        const burstDelay = burst * 0.75;
+        beeps.forEach(b => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
 
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(b.freq, audioCtx.currentTime + b.start);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(b.freq, audioCtx.currentTime + burstDelay + b.start);
 
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime + b.start);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + b.start + b.duration);
+          gain.gain.setValueAtTime(0.2, audioCtx.currentTime + burstDelay + b.start);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + burstDelay + b.start + b.duration);
 
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
 
-        osc.start(audioCtx.currentTime + b.start);
-        osc.stop(audioCtx.currentTime + b.start + b.duration);
-      });
+          osc.start(audioCtx.currentTime + burstDelay + b.start);
+          osc.stop(audioCtx.currentTime + burstDelay + b.start + b.duration);
+        });
+      }
     }
 
     // Elementos DOM
@@ -632,8 +633,10 @@
     const exerciseSubblockEl = document.getElementById('exerciseSubblock');
     const exerciseImgEl = document.getElementById('exerciseImg');
     const placeholderIcon = document.getElementById('placeholderIcon');
+    const restTitleEl = document.getElementById('restTitle');
     const restCounterEl = document.getElementById('restCounter');
     const nextUpTextEl = document.getElementById('nextUpText');
+    const skipRestBtn = document.getElementById('skipRestBtn');
     const finalTimeSummaryEl = document.getElementById('finalTimeSummary');
 
     const timerBox = document.getElementById('timerBox');
@@ -709,6 +712,7 @@
 
     function nextStep() {
       if (activeTimerInterval) clearInterval(activeTimerInterval);
+      if (restTimerInterval) clearInterval(restTimerInterval);
       currentStep++;
       displayCurrentStep();
     }
@@ -847,10 +851,14 @@
       }, 1000);
     }
 
+    // Fase de Descanso con espera manual al llegar a 0
     function runRestPhase(duration, nextLabel) {
       showScreen('rest');
       headerTitleEl.textContent = "Descanso";
+      restTitleEl.textContent = "Descanso";
       nextUpTextEl.textContent = nextLabel ? `Próximo: ${nextLabel}` : "Prepárate para continuar";
+      skipRestBtn.textContent = "Saltar Descanso →";
+      
       let timeLeft = duration;
       restCounterEl.textContent = timeLeft;
 
@@ -859,11 +867,14 @@
       restTimerInterval = setInterval(() => {
         if (!isGlobalPaused) {
           timeLeft--;
-          restCounterEl.textContent = timeLeft;
-          if (timeLeft <= 0) {
+          if (timeLeft > 0) {
+            restCounterEl.textContent = timeLeft;
+          } else {
             clearInterval(restTimerInterval);
+            restCounterEl.textContent = "¡Listo!";
+            restTitleEl.textContent = "¡Tiempo cumplido!";
+            skipRestBtn.textContent = "Comenzar Siguiente Ejercicio →";
             playAlarmSound();
-            nextStep();
           }
         }
       }, 1000);
@@ -934,14 +945,10 @@
       });
     });
 
-    // Controles de navegación
+    // Navegación
     document.getElementById('startBlockBtn').addEventListener('click', () => nextStep());
     document.getElementById('nextExerciseBtn').addEventListener('click', () => nextStep());
-
-    document.getElementById('skipRestBtn').addEventListener('click', () => {
-      if (restTimerInterval) clearInterval(restTimerInterval);
-      nextStep();
-    });
+    skipRestBtn.addEventListener('click', () => nextStep());
 
     pauseTimedBtn.addEventListener('click', () => {
       isTimerPaused = !isTimerPaused;
