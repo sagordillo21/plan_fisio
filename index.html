@@ -50,6 +50,7 @@
       overflow: hidden;
       box-shadow: 0 20px 40px rgba(11, 8, 26, 0.8), 0 0 50px rgba(49, 22, 235, 0.08);
       min-height: 88vh;
+      position: relative;
     }
 
     /* Header Minimalista */
@@ -66,7 +67,7 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
 
     .app-title {
@@ -90,6 +91,21 @@
       color: var(--color-5);
       letter-spacing: 0.05em;
       margin-left: 0.2rem;
+    }
+
+    /* Barra de Progreso */
+    .progress-container {
+      width: 100%;
+      height: 4px;
+      background-color: rgba(152, 108, 245, 0.15);
+      display: none;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--color-2), var(--color-5));
+      transition: width 0.3s ease;
     }
 
     /* Botones de Cabecera */
@@ -134,8 +150,8 @@
       justify-content: center;
       text-align: center;
       flex: 1;
-      padding: 1.75rem 1.4rem;
-      gap: 1.25rem;
+      padding: 1.5rem 1.4rem;
+      gap: 1.15rem;
     }
 
     .screen.active {
@@ -181,7 +197,7 @@
 
     .media-card {
       width: 100%;
-      height: 220px;
+      height: 215px;
       background-color: #070512;
       border-radius: 16px;
       border: 1px solid var(--border-soft);
@@ -206,7 +222,7 @@
 
     /* Timers & Counters */
     .rest-counter {
-      font-size: 4.75rem;
+      font-size: 4.5rem;
       font-weight: 800;
       color: var(--color-5);
       font-family: "SF Mono", Monaco, Consolas, monospace;
@@ -220,14 +236,14 @@
       align-items: center;
       gap: 0.25rem;
       background: linear-gradient(180deg, rgba(100, 65, 240, 0.12) 0%, rgba(49, 22, 235, 0.05) 100%);
-      padding: 0.75rem 1.4rem;
+      padding: 0.6rem 1.4rem;
       border-radius: 16px;
       border: 1px solid var(--border-soft);
       width: 100%;
     }
 
     .timer-num {
-      font-size: 2.4rem;
+      font-size: 2.3rem;
       font-weight: 800;
       font-family: "SF Mono", Monaco, Consolas, monospace;
       color: var(--color-5);
@@ -299,7 +315,7 @@
     /* Botones de Acción */
     .btn {
       width: 100%;
-      padding: 1rem;
+      padding: 0.95rem;
       font-size: 1rem;
       font-weight: 600;
       border: none;
@@ -345,9 +361,8 @@
     <!-- Header Global -->
     <header class="header">
       <div class="header-left">
-        <button class="header-btn" id="homeNavBtn" style="display: none;">
-          ✕ Salir
-        </button>
+        <button class="header-btn" id="homeNavBtn" style="display: none;">✕ Salir</button>
+        <button class="header-btn" id="prevBtn" style="display: none;" title="Ejercicio anterior">←</button>
         <span class="app-title" id="headerTitle">Plan Fisio</span>
       </div>
 
@@ -363,6 +378,11 @@
         <span class="timer-display" id="globalTimer">00:00</span>
       </div>
     </header>
+
+    <!-- Barra de Progreso Visual -->
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
 
     <!-- 1. Pantalla Inicio -->
     <section class="screen active" id="startScreen">
@@ -550,6 +570,9 @@
     let isGlobalPaused = false;
     let isMuted = false;
 
+    // Wake Lock
+    let wakeLock = null;
+
     // Variables temporizadas
     let currentRep = 1;
     let totalRepsInExercise = 1;
@@ -558,7 +581,7 @@
     let isTimerPaused = false;
     let userChosenPlankTime = 45;
 
-    // Audio Context
+    // Web Audio
     let audioCtx = null;
 
     function initAudio() {
@@ -570,7 +593,26 @@
       }
     }
 
-    // Alarma Sonora: 3 ráfagas consecutivas
+    // Pitido corto de cuenta regresiva (3, 2, 1)
+    function playWarningBeep() {
+      if (isMuted) return;
+      initAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    // Alarma final (3 ráfagas)
     function playAlarmSound() {
       if (isMuted) return;
       initAudio();
@@ -602,6 +644,25 @@
       }
     }
 
+    // Manejo de Wake Lock para pantalla activa
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        console.log('Wake Lock no soportado o denegado');
+      }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock) {
+        wakeLock.release().then(() => {
+          wakeLock = null;
+        });
+      }
+    }
+
     // Elementos DOM
     const screens = {
       start: document.getElementById('startScreen'),
@@ -614,13 +675,14 @@
     const globalTimerEl = document.getElementById('globalTimer');
     const headerTitleEl = document.getElementById('headerTitle');
     const homeNavBtn = document.getElementById('homeNavBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
     
-    // Sonido
     const soundToggleBtn = document.getElementById('soundToggleBtn');
     const soundBtnIcon = document.getElementById('soundBtnIcon');
     const soundBtnLabel = document.getElementById('soundBtnLabel');
 
-    // Pausa
     const globalPauseBtn = document.getElementById('globalPauseBtn');
     const pauseBtnIcon = document.getElementById('pauseBtnIcon');
     const pauseBtnLabel = document.getElementById('pauseBtnLabel');
@@ -658,6 +720,13 @@
       return `${min}:${sec}`;
     }
 
+    function updateProgressBar() {
+      if (currentSequence.length > 0) {
+        const percentage = Math.min(100, Math.round((currentStep / (currentSequence.length - 1)) * 100));
+        progressBar.style.width = `${percentage}%`;
+      }
+    }
+
     function startGlobalTimer() {
       if (globalTimerInterval) clearInterval(globalTimerInterval);
       globalSeconds = 0;
@@ -667,6 +736,8 @@
       
       homeNavBtn.style.display = 'inline-flex';
       globalPauseBtn.style.display = 'inline-flex';
+      progressContainer.style.display = 'block';
+      requestWakeLock();
 
       globalTimerInterval = setInterval(() => {
         if (!isGlobalPaused) {
@@ -717,7 +788,25 @@
       displayCurrentStep();
     }
 
+    function previousStep() {
+      if (currentStep > 0) {
+        if (activeTimerInterval) clearInterval(activeTimerInterval);
+        if (restTimerInterval) clearInterval(restTimerInterval);
+        currentStep--;
+        displayCurrentStep();
+      }
+    }
+
     function displayCurrentStep() {
+      updateProgressBar();
+
+      // Control del botón de retroceso
+      if (currentStep > 0 && currentStep < currentSequence.length) {
+        prevBtn.style.display = 'inline-flex';
+      } else {
+        prevBtn.style.display = 'none';
+      }
+
       if (currentStep >= currentSequence.length) {
         finishRoutine();
         return;
@@ -838,8 +927,14 @@
           activeSecondsLeft--;
           activeTimerNum.textContent = `${activeSecondsLeft}s`;
 
+          // Aviso en 3, 2, 1
+          if (activeSecondsLeft >= 1 && activeSecondsLeft <= 3) {
+            playWarningBeep();
+          }
+
           if (activeSecondsLeft <= 0) {
             clearInterval(activeTimerInterval);
+            playAlarmSound();
             if (currentRep < totalRepsInExercise) {
               currentRep++;
               runCountdown(duration);
@@ -851,7 +946,6 @@
       }, 1000);
     }
 
-    // Fase de Descanso con espera manual al llegar a 0
     function runRestPhase(duration, nextLabel) {
       showScreen('rest');
       headerTitleEl.textContent = "Descanso";
@@ -869,6 +963,9 @@
           timeLeft--;
           if (timeLeft > 0) {
             restCounterEl.textContent = timeLeft;
+            if (timeLeft <= 3) {
+              playWarningBeep();
+            }
           } else {
             clearInterval(restTimerInterval);
             restCounterEl.textContent = "¡Listo!";
@@ -884,8 +981,13 @@
       if (globalTimerInterval) clearInterval(globalTimerInterval);
       if (activeTimerInterval) clearInterval(activeTimerInterval);
       if (restTimerInterval) clearInterval(restTimerInterval);
+      
       globalPauseBtn.style.display = 'none';
       homeNavBtn.style.display = 'none';
+      prevBtn.style.display = 'none';
+      progressContainer.style.display = 'none';
+      releaseWakeLock();
+
       finalTimeSummaryEl.textContent = `Tiempo Total: ${formatTime(globalSeconds)}`;
       headerTitleEl.textContent = "Completado";
       showScreen('finish');
@@ -900,13 +1002,18 @@
       globalTimerEl.textContent = "00:00";
       headerTitleEl.textContent = "Plan Fisio";
       homeNavBtn.style.display = 'none';
+      prevBtn.style.display = 'none';
       globalPauseBtn.style.display = 'none';
+      progressContainer.style.display = 'none';
+      progressBar.style.width = '0%';
       isGlobalPaused = false;
+      releaseWakeLock();
       showScreen('start');
     }
 
     // Eventos
     soundToggleBtn.addEventListener('click', toggleMute);
+    prevBtn.addEventListener('click', previousStep);
 
     homeNavBtn.addEventListener('click', () => {
       const confirmExit = confirm("¿Deseas detener el entrenamiento y volver al inicio?");
