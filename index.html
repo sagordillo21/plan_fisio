@@ -6,26 +6,31 @@
   <title>Plan Fisio - Entrenamiento</title>
   <style>
     :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --accent: #38bdf8;
-      --accent-hover: #0284c7;
-      --success: #22c55e;
-      --border-color: #334155;
+      --color-1: #3116eb;
+      --color-2: #6441f0;
+      --color-3: #986cf5;
+      --color-4: #cb96fa;
+      --color-5: #ffc1ff;
+      
+      --bg-main: #0b081a;
+      --bg-card: #15102a;
+      --bg-surface: #1e173b;
+      --text-main: #f5f3ff;
+      --text-muted: #a79fc2;
+      --border-soft: rgba(152, 108, 245, 0.22);
+      --border-focus: rgba(203, 150, 250, 0.5);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: var(--bg-color);
+      background-color: var(--bg-main);
       color: var(--text-main);
       display: flex;
       justify-content: center;
@@ -36,41 +41,75 @@
 
     .app-container {
       width: 100%;
-      max-width: 500px;
-      background-color: var(--card-bg);
-      border-radius: 16px;
-      border: 1px solid var(--border-color);
+      max-width: 480px;
+      background-color: var(--bg-card);
+      border-radius: 24px;
+      border: 1px solid var(--border-soft);
       display: flex;
       flex-direction: column;
       overflow: hidden;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 40px rgba(11, 8, 26, 0.8), 0 0 50px rgba(49, 22, 235, 0.08);
       min-height: 88vh;
     }
 
-    /* Header */
+    /* Header Minimalista */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-      background-color: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(8px);
+      padding: 1.1rem 1.4rem;
+      border-bottom: 1px solid var(--border-soft);
+      background: rgba(21, 16, 42, 0.75);
+      backdrop-filter: blur(12px);
     }
 
     .app-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-4);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
 
     .timer-display {
-      font-family: monospace;
-      font-size: 1.15rem;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      font-size: 1.1rem;
       font-weight: 700;
-      color: var(--accent);
+      color: var(--color-5);
+      letter-spacing: 0.05em;
+    }
+
+    .pause-global-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      color: var(--color-4);
+      border-radius: 8px;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s ease;
+    }
+
+    .pause-global-btn:hover {
+      border-color: var(--color-3);
+      color: var(--color-5);
+    }
+
+    .pause-global-btn.active-pause {
+      background-color: var(--color-1);
+      color: #fff;
+      border-color: var(--color-3);
     }
 
     /* Pantallas */
@@ -81,8 +120,8 @@
       justify-content: center;
       text-align: center;
       flex: 1;
-      padding: 1.5rem;
-      gap: 1.2rem;
+      padding: 1.75rem 1.4rem;
+      gap: 1.25rem;
     }
 
     .screen.active {
@@ -90,44 +129,48 @@
     }
 
     h1 {
-      font-size: 1.6rem;
+      font-size: 1.65rem;
       font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
     }
 
     h2 {
       font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       color: var(--text-main);
     }
 
     .meta-tag {
       display: inline-block;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: var(--accent);
-      background-color: rgba(56, 189, 248, 0.12);
-      padding: 0.3rem 0.8rem;
-      border-radius: 20px;
+      color: var(--color-4);
+      background-color: rgba(152, 108, 245, 0.12);
+      padding: 0.35rem 0.85rem;
+      border-radius: 30px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border: 1px solid rgba(56, 189, 248, 0.25);
+      letter-spacing: 0.06em;
+      border: 1px solid rgba(203, 150, 250, 0.25);
     }
 
     .reps-tag {
       font-size: 1.1rem;
       font-weight: 700;
-      color: var(--text-main);
-      background-color: #0f172a;
-      padding: 0.5rem 1.2rem;
-      border-radius: 10px;
-      border: 1px solid var(--border-color);
+      color: var(--color-5);
+      background-color: var(--bg-surface);
+      padding: 0.6rem 1.4rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-soft);
     }
 
     .media-card {
       width: 100%;
       height: 220px;
-      background-color: #0b1120;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
+      background-color: #070512;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -141,40 +184,42 @@
     }
 
     .placeholder-svg {
-      width: 60px;
-      height: 60px;
-      opacity: 0.3;
+      width: 50px;
+      height: 50px;
+      color: var(--color-3);
+      opacity: 0.35;
     }
 
     /* Timers & Counters */
     .rest-counter {
-      font-size: 4.5rem;
+      font-size: 4.75rem;
       font-weight: 800;
-      color: var(--accent);
-      font-family: monospace;
+      color: var(--color-5);
+      font-family: "SF Mono", Monaco, Consolas, monospace;
       line-height: 1;
+      text-shadow: 0 0 25px rgba(255, 193, 255, 0.25);
     }
 
     .timer-box {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.3rem;
-      background-color: rgba(56, 189, 248, 0.08);
-      padding: 0.6rem 1.2rem;
-      border-radius: 12px;
-      border: 1px solid rgba(56, 189, 248, 0.2);
+      gap: 0.25rem;
+      background: linear-gradient(180deg, rgba(100, 65, 240, 0.12) 0%, rgba(49, 22, 235, 0.05) 100%);
+      padding: 0.75rem 1.4rem;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
       width: 100%;
     }
 
     .timer-num {
-      font-size: 2.2rem;
+      font-size: 2.4rem;
       font-weight: 800;
-      font-family: monospace;
-      color: var(--accent);
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      color: var(--color-5);
     }
 
-    /* Selector de duración para Puente Isométrico */
+    /* Selector de duración (Puente Isométrico) */
     .time-selector-group {
       display: flex;
       gap: 0.5rem;
@@ -183,80 +228,100 @@
     }
 
     .time-chip {
-      padding: 0.4rem 0.9rem;
-      border-radius: 8px;
-      background: #334155;
-      color: var(--text-main);
+      padding: 0.45rem 1rem;
+      border-radius: 10px;
+      background: var(--bg-surface);
+      color: var(--text-muted);
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
-      border: 1px solid transparent;
-      transition: all 0.2s;
+      border: 1px solid var(--border-soft);
+      transition: all 0.2s ease;
     }
 
     .time-chip.active {
-      background: var(--accent);
-      color: #0f172a;
-      border-color: #38bdf8;
+      background: var(--color-2);
+      color: #ffffff;
+      border-color: var(--color-4);
+      box-shadow: 0 0 15px rgba(100, 65, 240, 0.4);
     }
 
-    /* Menú selector de bloques */
+    /* Menú Selector de Bloques */
     .menu-list {
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.6rem;
       margin-top: 0.5rem;
     }
 
     .menu-btn {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.85rem 1.1rem;
       font-size: 0.95rem;
       font-weight: 600;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      background-color: #1e293b;
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      background-color: var(--bg-surface);
       color: var(--text-main);
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
     .menu-btn:hover {
-      border-color: var(--accent);
-      background-color: #243248;
+      border-color: var(--color-3);
+      background-color: rgba(100, 65, 240, 0.15);
+      transform: translateY(-1px);
     }
 
-    /* Botones generales */
+    .menu-btn-accent {
+      border-color: rgba(203, 150, 250, 0.4) !important;
+      background: linear-gradient(90deg, rgba(49, 22, 235, 0.15) 0%, rgba(100, 65, 240, 0.05) 100%) !important;
+    }
+
+    /* Botones de Acción */
     .btn {
       width: 100%;
-      padding: 0.95rem;
+      padding: 1rem;
       font-size: 1rem;
       font-weight: 600;
       border: none;
-      border-radius: 10px;
-      background-color: var(--accent);
-      color: #0f172a;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--color-1) 0%, var(--color-2) 100%);
+      color: #ffffff;
       cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 20px rgba(49, 22, 235, 0.25);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
 
     .btn:active {
       transform: scale(0.98);
+      filter: brightness(0.9);
     }
 
     .btn-secondary {
-      background-color: #334155;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
       color: var(--text-main);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-3);
+      color: var(--color-5);
     }
 
     .btn-group {
       width: 100%;
       display: flex;
-      gap: 0.5rem;
+      gap: 0.6rem;
     }
   </style>
 </head>
@@ -266,32 +331,37 @@
     <!-- Header Global -->
     <header class="header">
       <span class="app-title" id="headerTitle">Plan Fisioterapia</span>
-      <span class="timer-display" id="globalTimer">00:00</span>
+      <div class="header-controls">
+        <button class="pause-global-btn" id="globalPauseBtn" style="display: none;">
+          <span id="pauseBtnIcon">❚❚</span> <span id="pauseBtnLabel">Pausar</span>
+        </button>
+        <span class="timer-display" id="globalTimer">00:00</span>
+      </div>
     </header>
 
-    <!-- 1. Pantalla Inicio con Selector de Bloques -->
+    <!-- 1. Pantalla Inicio -->
     <section class="screen active" id="startScreen">
       <h1>Rutina de Fisioterapia</h1>
-      <p style="color: var(--text-muted); font-size: 0.9rem;">Selecciona una opción para comenzar:</p>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Elige una opción para comenzar tu entrenamiento:</p>
 
       <button class="btn" id="startAllBtn" style="margin-top: 0.3rem;">Rutina Completa (Bloques 1 al 4)</button>
 
       <div class="menu-list">
         <button class="menu-btn" data-block="1">
           <span>1. Movilidad</span>
-          <span style="color: var(--accent);">→</span>
+          <span style="color: var(--color-4);">→</span>
         </button>
         <button class="menu-btn" data-block="2">
           <span>2. Activación</span>
-          <span style="color: var(--accent);">→</span>
+          <span style="color: var(--color-4);">→</span>
         </button>
         <button class="menu-btn" data-block="3">
           <span>3. Elongación</span>
-          <span style="color: var(--accent);">→</span>
+          <span style="color: var(--color-4);">→</span>
         </button>
-        <button class="menu-btn" data-block="4" style="border-color: rgba(56, 189, 248, 0.4); background-color: rgba(56, 189, 248, 0.05);">
+        <button class="menu-btn menu-btn-accent" data-block="4">
           <span>4. Abdominales y Flexiones</span>
-          <span style="color: var(--accent);">★ →</span>
+          <span style="color: var(--color-5);">→</span>
         </button>
       </div>
     </section>
@@ -318,25 +388,21 @@
         </svg>
       </div>
 
-      <!-- Modo Repeticiones -->
       <div class="reps-tag" id="exerciseReps">10 repeticiones</div>
 
-      <!-- Selector de duración para Puente Isométrico -->
       <div id="isomOptions" class="time-selector-group" style="display: none;">
         <button class="time-chip" data-time="30">30s</button>
         <button class="time-chip active" data-time="45">45s</button>
         <button class="time-chip" data-time="60">60s</button>
       </div>
 
-      <!-- Modo Temporizador (Elongación / Plancha) -->
       <div class="timer-box" id="timerBox" style="display: none;">
-        <span style="font-size: 0.85rem; color: var(--text-muted);" id="timedRepLabel">Repetición 1 de 2</span>
+        <span style="font-size: 0.85rem; color: var(--color-4);" id="timedRepLabel">Repetición 1 de 2</span>
         <div class="timer-num" id="activeTimerNum">30s</div>
       </div>
 
-      <!-- Controles -->
       <div id="standardBtnContainer" style="width: 100%;">
-        <button class="btn" id="nextExerciseBtn">Ejercicio Completado ✓</button>
+        <button class="btn" id="nextExerciseBtn">Ejercicio Completado →</button>
       </div>
 
       <div id="timedBtnContainer" class="btn-group" style="display: none;">
@@ -351,10 +417,10 @@
       <h2>Descanso</h2>
       <div class="rest-counter" id="restCounter">30</div>
       <p id="nextUpText" style="color: var(--text-muted); font-size: 0.9rem;">Siguiente ejercicio...</p>
-      <button class="btn btn-secondary" id="skipRestBtn">Saltar Descanso ⏭</button>
+      <button class="btn btn-secondary" id="skipRestBtn">Saltar Descanso →</button>
     </section>
 
-    <!-- 5. Finalización -->
+    <!-- 5. Pantalla Final -->
     <section class="screen" id="finishScreen">
       <h2>¡Entrenamiento Completado!</h2>
       <p style="color: var(--text-muted); font-size: 0.95rem;">Has finalizado la sesión programada.</p>
@@ -437,19 +503,16 @@
     const block4 = [
       { isBlockStart: true, title: "Abdominales y Flexiones", badge: "Bloque 4", desc: "Core, fuerza y resistencia (3 series en circuito)." },
 
-      // Serie 1
       { name: "Abdominales cortitos", reps: "50 repeticiones", meta: "Core & Fuerza • Serie 1/3", img: "img/abdominales_cortitos.png" },
       { name: "Flexiones de brazo", reps: "20 repeticiones", meta: "Core & Fuerza • Serie 1/3", img: "img/flexiones_brazo.png" },
       { isIsometric: true, name: "Puente isométrico", totalReps: 1, defaultHold: 45, meta: "Core & Fuerza • Serie 1/3", img: "img/puente_isometrico.png" },
       { isRest: true, duration: 30, nextLabel: "Core & Fuerza - Serie 2/3" },
 
-      // Serie 2
       { name: "Abdominales cortitos", reps: "50 repeticiones", meta: "Core & Fuerza • Serie 2/3", img: "img/abdominales_cortitos.png" },
       { name: "Flexiones de brazo", reps: "20 repeticiones", meta: "Core & Fuerza • Serie 2/3", img: "img/flexiones_brazo.png" },
       { isIsometric: true, name: "Puente isométrico", totalReps: 1, defaultHold: 45, meta: "Core & Fuerza • Serie 2/3", img: "img/puente_isometrico.png" },
       { isRest: true, duration: 30, nextLabel: "Core & Fuerza - Serie 3/3" },
 
-      // Serie 3
       { name: "Abdominales cortitos", reps: "50 repeticiones", meta: "Core & Fuerza • Serie 3/3", img: "img/abdominales_cortitos.png" },
       { name: "Flexiones de brazo", reps: "20 repeticiones", meta: "Core & Fuerza • Serie 3/3", img: "img/flexiones_brazo.png" },
       { isIsometric: true, name: "Puente isométrico", totalReps: 1, defaultHold: 45, meta: "Core & Fuerza • Serie 3/3", img: "img/puente_isometrico.png" }
@@ -460,6 +523,7 @@
     let globalSeconds = 0;
     let globalTimerInterval = null;
     let restTimerInterval = null;
+    let isGlobalPaused = false;
 
     // Variables temporizadas
     let currentRep = 1;
@@ -469,7 +533,7 @@
     let isTimerPaused = false;
     let userChosenPlankTime = 45;
 
-    // DOM
+    // Elementos DOM
     const screens = {
       start: document.getElementById('startScreen'),
       block: document.getElementById('blockScreen'),
@@ -480,6 +544,10 @@
 
     const globalTimerEl = document.getElementById('globalTimer');
     const headerTitleEl = document.getElementById('headerTitle');
+    const globalPauseBtn = document.getElementById('globalPauseBtn');
+    const pauseBtnIcon = document.getElementById('pauseBtnIcon');
+    const pauseBtnLabel = document.getElementById('pauseBtnLabel');
+
     const blockBadgeEl = document.getElementById('blockBadge');
     const blockTitleEl = document.getElementById('blockTitle');
     const blockDescEl = document.getElementById('blockDescription');
@@ -515,10 +583,28 @@
       if (globalTimerInterval) clearInterval(globalTimerInterval);
       globalSeconds = 0;
       globalTimerEl.textContent = "00:00";
+      isGlobalPaused = false;
+      updatePauseUI();
+      globalPauseBtn.style.display = 'inline-flex';
+
       globalTimerInterval = setInterval(() => {
-        globalSeconds++;
-        globalTimerEl.textContent = formatTime(globalSeconds);
+        if (!isGlobalPaused) {
+          globalSeconds++;
+          globalTimerEl.textContent = formatTime(globalSeconds);
+        }
       }, 1000);
+    }
+
+    function updatePauseUI() {
+      if (isGlobalPaused) {
+        globalPauseBtn.classList.add('active-pause');
+        pauseBtnIcon.textContent = "▶";
+        pauseBtnLabel.textContent = "Reanudar";
+      } else {
+        globalPauseBtn.classList.remove('active-pause');
+        pauseBtnIcon.textContent = "❚❚";
+        pauseBtnLabel.textContent = "Pausar";
+      }
     }
 
     function startRoutineWith(seq) {
@@ -542,7 +628,6 @@
 
       const item = currentSequence[currentStep];
 
-      // Caso 1: Inicio de Bloque
       if (item.isBlockStart) {
         headerTitleEl.textContent = item.title;
         blockBadgeEl.textContent = item.badge;
@@ -552,25 +637,21 @@
         return;
       }
 
-      // Caso 2: Descanso
       if (item.isRest) {
         runRestPhase(item.duration, item.nextLabel);
         return;
       }
 
-      // Caso 3: Puente Isométrico
       if (item.isIsometric) {
         setupIsometricExercise(item);
         return;
       }
 
-      // Caso 4: Elongación
       if (item.isStretch) {
         setupStretchExercise(item);
         return;
       }
 
-      // Caso 5: Estándar
       setupStandardExercise(item);
     }
 
@@ -656,7 +737,7 @@
       activeTimerNum.textContent = `${activeSecondsLeft}s`;
 
       activeTimerInterval = setInterval(() => {
-        if (!isTimerPaused) {
+        if (!isTimerPaused && !isGlobalPaused) {
           activeSecondsLeft--;
           activeTimerNum.textContent = `${activeSecondsLeft}s`;
 
@@ -683,11 +764,13 @@
       if (restTimerInterval) clearInterval(restTimerInterval);
 
       restTimerInterval = setInterval(() => {
-        timeLeft--;
-        restCounterEl.textContent = timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(restTimerInterval);
-          nextStep();
+        if (!isGlobalPaused) {
+          timeLeft--;
+          restCounterEl.textContent = timeLeft;
+          if (timeLeft <= 0) {
+            clearInterval(restTimerInterval);
+            nextStep();
+          }
         }
       }, 1000);
     }
@@ -695,12 +778,20 @@
     function finishRoutine() {
       if (globalTimerInterval) clearInterval(globalTimerInterval);
       if (activeTimerInterval) clearInterval(activeTimerInterval);
+      if (restTimerInterval) clearInterval(restTimerInterval);
+      globalPauseBtn.style.display = 'none';
       finalTimeSummaryEl.textContent = `Tiempo Total: ${formatTime(globalSeconds)}`;
       headerTitleEl.textContent = "Completado";
       showScreen('finish');
     }
 
-    // Botones del Menú Principal
+    // Botón de Pausa Global
+    globalPauseBtn.addEventListener('click', () => {
+      isGlobalPaused = !isGlobalPaused;
+      updatePauseUI();
+    });
+
+    // Menú Principal
     document.getElementById('startAllBtn').addEventListener('click', () => {
       startRoutineWith([...block1, ...block2, ...block3, ...block4]);
     });
@@ -715,7 +806,7 @@
       });
     });
 
-    // Selector de tiempo para Plancha
+    // Selector Puente Isométrico
     document.querySelectorAll('.time-chip').forEach(chip => {
       chip.addEventListener('click', (e) => {
         document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('active'));
@@ -752,6 +843,7 @@
     document.getElementById('restartBtn').addEventListener('click', () => {
       headerTitleEl.textContent = "Plan Fisioterapia";
       globalTimerEl.textContent = "00:00";
+      globalPauseBtn.style.display = 'none';
       showScreen('start');
     });
   </script>
