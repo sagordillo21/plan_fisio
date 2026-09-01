@@ -195,22 +195,30 @@
       border: 1px solid var(--border-soft);
     }
 
+    /* Contenedor Adaptativo de Imagen sin bordes negros */
     .media-card {
-      width: 100%;
-      height: 215px;
-      background-color: #070512;
+      width: fit-content;
+      max-width: 100%;
+      height: auto;
+      max-height: 250px;
+      background-color: #ffffff;
       border-radius: 16px;
       border: 1px solid var(--border-soft);
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      padding: 6px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .media-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+      max-width: 100%;
+      max-height: 238px;
+      width: auto;
+      height: auto;
+      display: block;
+      border-radius: 10px;
     }
 
     .placeholder-svg {
@@ -218,6 +226,7 @@
       height: 50px;
       color: var(--color-3);
       opacity: 0.35;
+      padding: 20px;
     }
 
     /* Timers & Counters */
@@ -348,7 +357,6 @@
       color: var(--color-5);
     }
 
-    /* Botón Inferior para Volver al Ejercicio Anterior */
     .btn-bottom-prev {
       background: transparent;
       border: 1px solid transparent;
@@ -454,7 +462,7 @@
         <h2 id="exerciseName" style="margin-top: 0.4rem;">Nombre del Ejercicio</h2>
       </div>
 
-      <div class="media-card">
+      <div class="media-card" id="mediaCardWrapper">
         <img id="exerciseImg" src="" alt="Ejercicio" style="display: none;" />
         <svg id="placeholderIcon" class="placeholder-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -474,7 +482,6 @@
         <div class="timer-num" id="activeTimerNum">30s</div>
       </div>
 
-      <!-- Área de botones con el botón de retroceso debajo -->
       <div class="exercise-action-area">
         <div id="standardBtnContainer" style="width: 100%;">
           <button class="btn" id="nextExerciseBtn">Ejercicio Completado →</button>
@@ -630,7 +637,6 @@
       }
     }
 
-    // Pitido corto de aviso (3, 2, 1)
     function playWarningBeep() {
       if (isMuted) return;
       initAudio();
@@ -649,7 +655,6 @@
       osc.stop(audioCtx.currentTime + 0.08);
     }
 
-    // Alarma final (3 ráfagas)
     function playAlarmSound() {
       if (isMuted) return;
       initAudio();
@@ -687,7 +692,7 @@
           wakeLock = await navigator.wakeLock.request('screen');
         }
       } catch (err) {
-        console.log('Wake Lock no soportado o denegado');
+        console.log('Wake Lock no soportado');
       }
     }
 
@@ -836,7 +841,6 @@
     function displayCurrentStep() {
       updateProgressBar();
 
-      // Control de visibilidad del botón retroceder inferior
       const showPrev = (currentStep > 0 && currentStep < currentSequence.length);
       prevBtns.forEach(btn => {
         btn.style.display = showPrev ? 'inline-block' : 'none';
@@ -1048,7 +1052,6 @@
     // Eventos
     soundToggleBtn.addEventListener('click', toggleMute);
 
-    // Eventos para botones inferiores de retroceso
     prevBtns.forEach(btn => {
       btn.addEventListener('click', previousStep);
     });
