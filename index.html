@@ -67,7 +67,7 @@
     .header-left {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.5rem;
     }
 
     .app-title {
@@ -348,10 +348,35 @@
       color: var(--color-5);
     }
 
+    /* Botón Inferior para Volver al Ejercicio Anterior */
+    .btn-bottom-prev {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 0.5rem 1rem;
+      margin-top: 0.2rem;
+      box-shadow: none;
+    }
+
+    .btn-bottom-prev:hover {
+      border-color: var(--border-soft);
+      color: var(--color-4);
+      background: rgba(30, 23, 59, 0.5);
+    }
+
     .btn-group {
       width: 100%;
       display: flex;
       gap: 0.6rem;
+    }
+
+    .exercise-action-area {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
     }
   </style>
 </head>
@@ -362,7 +387,6 @@
     <header class="header">
       <div class="header-left">
         <button class="header-btn" id="homeNavBtn" style="display: none;">✕ Salir</button>
-        <button class="header-btn" id="prevBtn" style="display: none;" title="Ejercicio anterior">←</button>
         <span class="app-title" id="headerTitle">Plan Fisio</span>
       </div>
 
@@ -416,7 +440,11 @@
       <span class="meta-tag" id="blockBadge">Bloque</span>
       <h2 id="blockTitle">Título del Bloque</h2>
       <p id="blockDescription" style="color: var(--text-muted); font-size: 0.95rem;">Descripción del bloque.</p>
-      <button class="btn" id="startBlockBtn">Comenzar Bloque →</button>
+      
+      <div class="exercise-action-area">
+        <button class="btn" id="startBlockBtn">Comenzar Bloque →</button>
+        <button class="btn btn-bottom-prev prev-step-btn" style="display: none;">← Volver al ejercicio anterior</button>
+      </div>
     </section>
 
     <!-- 3. Pantalla de Ejercicio -->
@@ -446,13 +474,18 @@
         <div class="timer-num" id="activeTimerNum">30s</div>
       </div>
 
-      <div id="standardBtnContainer" style="width: 100%;">
-        <button class="btn" id="nextExerciseBtn">Ejercicio Completado →</button>
-      </div>
+      <!-- Área de botones con el botón de retroceso debajo -->
+      <div class="exercise-action-area">
+        <div id="standardBtnContainer" style="width: 100%;">
+          <button class="btn" id="nextExerciseBtn">Ejercicio Completado →</button>
+        </div>
 
-      <div id="timedBtnContainer" class="btn-group" style="display: none;">
-        <button class="btn btn-secondary" id="pauseTimedBtn">Pausar</button>
-        <button class="btn" id="skipTimedBtn">Siguiente →</button>
+        <div id="timedBtnContainer" class="btn-group" style="display: none;">
+          <button class="btn btn-secondary" id="pauseTimedBtn">Pausar</button>
+          <button class="btn" id="skipTimedBtn">Siguiente →</button>
+        </div>
+
+        <button class="btn btn-bottom-prev prev-step-btn" style="display: none;">← Volver al ejercicio anterior</button>
       </div>
     </section>
 
@@ -462,7 +495,11 @@
       <h2 id="restTitle">Descanso</h2>
       <div class="rest-counter" id="restCounter">30</div>
       <p id="nextUpText" style="color: var(--text-muted); font-size: 0.9rem;">Siguiente ejercicio...</p>
-      <button class="btn" id="skipRestBtn">Saltar Descanso →</button>
+      
+      <div class="exercise-action-area">
+        <button class="btn" id="skipRestBtn">Saltar Descanso →</button>
+        <button class="btn btn-bottom-prev prev-step-btn" style="display: none;">← Volver al ejercicio anterior</button>
+      </div>
     </section>
 
     <!-- 5. Pantalla Final -->
@@ -593,7 +630,7 @@
       }
     }
 
-    // Pitido corto de cuenta regresiva (3, 2, 1)
+    // Pitido corto de aviso (3, 2, 1)
     function playWarningBeep() {
       if (isMuted) return;
       initAudio();
@@ -644,7 +681,6 @@
       }
     }
 
-    // Manejo de Wake Lock para pantalla activa
     async function requestWakeLock() {
       try {
         if ('wakeLock' in navigator) {
@@ -675,9 +711,9 @@
     const globalTimerEl = document.getElementById('globalTimer');
     const headerTitleEl = document.getElementById('headerTitle');
     const homeNavBtn = document.getElementById('homeNavBtn');
-    const prevBtn = document.getElementById('prevBtn');
     const progressContainer = document.getElementById('progressContainer');
     const progressBar = document.getElementById('progressBar');
+    const prevBtns = document.querySelectorAll('.prev-step-btn');
     
     const soundToggleBtn = document.getElementById('soundToggleBtn');
     const soundBtnIcon = document.getElementById('soundBtnIcon');
@@ -800,12 +836,11 @@
     function displayCurrentStep() {
       updateProgressBar();
 
-      // Control del botón de retroceso
-      if (currentStep > 0 && currentStep < currentSequence.length) {
-        prevBtn.style.display = 'inline-flex';
-      } else {
-        prevBtn.style.display = 'none';
-      }
+      // Control de visibilidad del botón retroceder inferior
+      const showPrev = (currentStep > 0 && currentStep < currentSequence.length);
+      prevBtns.forEach(btn => {
+        btn.style.display = showPrev ? 'inline-block' : 'none';
+      });
 
       if (currentStep >= currentSequence.length) {
         finishRoutine();
@@ -927,7 +962,6 @@
           activeSecondsLeft--;
           activeTimerNum.textContent = `${activeSecondsLeft}s`;
 
-          // Aviso en 3, 2, 1
           if (activeSecondsLeft >= 1 && activeSecondsLeft <= 3) {
             playWarningBeep();
           }
@@ -984,8 +1018,8 @@
       
       globalPauseBtn.style.display = 'none';
       homeNavBtn.style.display = 'none';
-      prevBtn.style.display = 'none';
       progressContainer.style.display = 'none';
+      prevBtns.forEach(btn => btn.style.display = 'none');
       releaseWakeLock();
 
       finalTimeSummaryEl.textContent = `Tiempo Total: ${formatTime(globalSeconds)}`;
@@ -1002,10 +1036,10 @@
       globalTimerEl.textContent = "00:00";
       headerTitleEl.textContent = "Plan Fisio";
       homeNavBtn.style.display = 'none';
-      prevBtn.style.display = 'none';
       globalPauseBtn.style.display = 'none';
       progressContainer.style.display = 'none';
       progressBar.style.width = '0%';
+      prevBtns.forEach(btn => btn.style.display = 'none');
       isGlobalPaused = false;
       releaseWakeLock();
       showScreen('start');
@@ -1013,7 +1047,11 @@
 
     // Eventos
     soundToggleBtn.addEventListener('click', toggleMute);
-    prevBtn.addEventListener('click', previousStep);
+
+    // Eventos para botones inferiores de retroceso
+    prevBtns.forEach(btn => {
+      btn.addEventListener('click', previousStep);
+    });
 
     homeNavBtn.addEventListener('click', () => {
       const confirmExit = confirm("¿Deseas detener el entrenamiento y volver al inicio?");
