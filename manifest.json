@@ -1,0 +1,17 @@
+{
+  "name": "Plan Fisio",
+  "short_name": "FisioApp",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b081a",
+  "theme_color": "#0b081a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "img/icon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
