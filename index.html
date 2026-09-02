@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Plan Fisio - Entrenamiento</title>
+  <!-- Icono y Manifest PWA/APK -->
+  <link rel="icon" type="image/png" href="img/icon.png" />
+  <link rel="apple-touch-icon" href="img/icon.png" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0b081a" />
   <style>
     :root {
       --color-1: #3116eb;
@@ -195,7 +200,7 @@
       border: 1px solid var(--border-soft);
     }
 
-    /* Contenedor Adaptativo de Imagen sin bordes negros */
+    /* Contenedor Adaptativo de Imagen */
     .media-card {
       width: fit-content;
       max-width: 100%;
@@ -290,13 +295,13 @@
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 0.6rem;
-      margin-top: 0.5rem;
+      gap: 0.55rem;
+      margin-top: 0.3rem;
     }
 
     .menu-btn {
       width: 100%;
-      padding: 0.85rem 1.1rem;
+      padding: 0.8rem 1.1rem;
       font-size: 0.95rem;
       font-weight: 600;
       border: 1px solid var(--border-soft);
@@ -319,6 +324,13 @@
     .menu-btn-accent {
       border-color: rgba(203, 150, 250, 0.4) !important;
       background: linear-gradient(90deg, rgba(49, 22, 235, 0.15) 0%, rgba(100, 65, 240, 0.05) 100%) !important;
+    }
+
+    .menu-btn-history {
+      border-color: rgba(152, 108, 245, 0.4);
+      background: rgba(152, 108, 245, 0.08);
+      color: var(--color-4);
+      margin-top: 0.2rem;
     }
 
     /* Botones de Acción */
@@ -386,6 +398,71 @@
       align-items: center;
       gap: 0.4rem;
     }
+
+    /* Estilos Pantalla de Historial */
+    .history-list {
+      width: 100%;
+      max-height: 52vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      padding-right: 4px;
+    }
+
+    .history-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .history-list::-webkit-scrollbar-thumb {
+      background: var(--border-soft);
+      border-radius: 4px;
+    }
+
+    .history-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .history-item-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .history-mode {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .history-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .history-duration {
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-5);
+      background: rgba(255, 193, 255, 0.08);
+      padding: 0.35rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 193, 255, 0.2);
+    }
+
+    .history-empty {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      padding: 2rem 1rem;
+    }
   </style>
 </head>
 <body>
@@ -421,7 +498,7 @@
       <h1>Rutina de Fisioterapia</h1>
       <p style="color: var(--text-muted); font-size: 0.9rem;">Elige una opción para comenzar tu entrenamiento:</p>
 
-      <button class="btn" id="startAllBtn" style="margin-top: 0.3rem;">Rutina Completa (Bloques 1 al 4)</button>
+      <button class="btn" id="startAllBtn" style="margin-top: 0.2rem;">Rutina Completa (Bloques 1 al 4)</button>
 
       <div class="menu-list">
         <button class="menu-btn" data-block="1">
@@ -440,6 +517,25 @@
           <span>4. Abdominales y Flexiones</span>
           <span style="color: var(--color-5);">→</span>
         </button>
+        <button class="menu-btn menu-btn-history" id="viewHistoryBtn">
+          <span>Historial de Sesiones</span>
+          <span id="historyCountBadge" style="font-size: 0.8rem; background: var(--bg-surface); padding: 0.15rem 0.5rem; border-radius: 10px; border: 1px solid var(--border-soft);">0</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Pantalla Historial -->
+    <section class="screen" id="historyScreen">
+      <span class="meta-tag">Seguimiento</span>
+      <h2>Registro de Sesiones</h2>
+      
+      <div class="history-list" id="historyItemsContainer">
+        <!-- Renderizado dinámico -->
+      </div>
+
+      <div class="exercise-action-area" style="margin-top: 0.5rem;">
+        <button class="btn" id="backFromHistoryBtn">Volver al Inicio</button>
+        <button class="btn btn-bottom-prev" id="clearHistoryBtn" style="color: #ef4444;">Borrar Todo el Historial</button>
       </div>
     </section>
 
@@ -607,6 +703,7 @@
     ];
 
     let currentSequence = [];
+    let currentSessionTitle = "";
     let currentStep = 0;
     let globalSeconds = 0;
     let globalTimerInterval = null;
@@ -704,9 +801,69 @@
       }
     }
 
+    // Historial LocalStorage
+    function getHistory() {
+      const data = localStorage.getItem('fisio_training_history');
+      return data ? JSON.parse(data) : [];
+    }
+
+    function saveSessionToHistory(title, durationStr) {
+      const history = getHistory();
+      const now = new Date();
+      const dateFormatted = now.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const sessionEntry = {
+        title: title,
+        date: dateFormatted,
+        duration: durationStr,
+        timestamp: now.getTime()
+      };
+
+      history.unshift(sessionEntry);
+      localStorage.setItem('fisio_training_history', JSON.stringify(history));
+      updateHistoryBadge();
+    }
+
+    function updateHistoryBadge() {
+      const history = getHistory();
+      const badge = document.getElementById('historyCountBadge');
+      if (badge) badge.textContent = history.length;
+    }
+
+    function renderHistory() {
+      const history = getHistory();
+      const container = document.getElementById('historyItemsContainer');
+      container.innerHTML = '';
+
+      if (history.length === 0) {
+        container.innerHTML = `<div class="history-empty">Aún no hay sesiones registradas. ¡Completa tu primer entrenamiento para verlo aquí!</div>`;
+        return;
+      }
+
+      history.forEach(item => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'history-item';
+        itemEl.innerHTML = `
+          <div class="history-item-left">
+            <span class="history-mode">${item.title}</span>
+            <span class="history-date">${item.date}</span>
+          </div>
+          <span class="history-duration">${item.duration}</span>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
     // Elementos DOM
     const screens = {
       start: document.getElementById('startScreen'),
+      history: document.getElementById('historyScreen'),
       block: document.getElementById('blockScreen'),
       exercise: document.getElementById('exerciseScreen'),
       rest: document.getElementById('restScreen'),
@@ -814,9 +971,10 @@
       }
     }
 
-    function startRoutineWith(seq) {
+    function startRoutineWith(seq, title) {
       initAudio();
       currentSequence = seq;
+      currentSessionTitle = title;
       currentStep = 0;
       startGlobalTimer();
       displayCurrentStep();
@@ -1026,8 +1184,13 @@
       prevBtns.forEach(btn => btn.style.display = 'none');
       releaseWakeLock();
 
-      finalTimeSummaryEl.textContent = `Tiempo Total: ${formatTime(globalSeconds)}`;
+      const finalDuration = formatTime(globalSeconds);
+      finalTimeSummaryEl.textContent = `Tiempo Total: ${finalDuration}`;
       headerTitleEl.textContent = "Completado";
+
+      // Guardar sesión en el Historial Local
+      saveSessionToHistory(currentSessionTitle, finalDuration);
+
       showScreen('finish');
     }
 
@@ -1046,6 +1209,7 @@
       prevBtns.forEach(btn => btn.style.display = 'none');
       isGlobalPaused = false;
       releaseWakeLock();
+      updateHistoryBadge();
       showScreen('start');
     }
 
@@ -1070,17 +1234,37 @@
 
     // Menú Principal
     document.getElementById('startAllBtn').addEventListener('click', () => {
-      startRoutineWith([...block1, ...block2, ...block3, ...block4]);
+      startRoutineWith([...block1, ...block2, ...block3, ...block4], "Rutina Completa");
     });
 
-    document.querySelectorAll('.menu-btn').forEach(btn => {
+    document.querySelectorAll('.menu-btn[data-block]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const blockId = e.currentTarget.dataset.block;
-        if (blockId === "1") startRoutineWith(block1);
-        if (blockId === "2") startRoutineWith(block2);
-        if (blockId === "3") startRoutineWith(block3);
-        if (blockId === "4") startRoutineWith(block4);
+        if (blockId === "1") startRoutineWith(block1, "Bloque 1: Movilidad");
+        if (blockId === "2") startRoutineWith(block2, "Bloque 2: Activación");
+        if (blockId === "3") startRoutineWith(block3, "Bloque 3: Elongación");
+        if (blockId === "4") startRoutineWith(block4, "Bloque 4: Abdominales y Flexiones");
       });
+    });
+
+    // Navegación Historial
+    document.getElementById('viewHistoryBtn').addEventListener('click', () => {
+      renderHistory();
+      headerTitleEl.textContent = "Historial";
+      showScreen('history');
+    });
+
+    document.getElementById('backFromHistoryBtn').addEventListener('click', () => {
+      returnToHome();
+    });
+
+    document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+      const confirmClear = confirm("¿Estás seguro de que deseas borrar todo el registro de sesiones?");
+      if (confirmClear) {
+        localStorage.removeItem('fisio_training_history');
+        renderHistory();
+        updateHistoryBadge();
+      }
     });
 
     // Selector Puente Isométrico
@@ -1093,7 +1277,7 @@
       });
     });
 
-    // Navegación
+    // Navegación rutinas
     document.getElementById('startBlockBtn').addEventListener('click', () => nextStep());
     document.getElementById('nextExerciseBtn').addEventListener('click', () => nextStep());
     skipRestBtn.addEventListener('click', () => nextStep());
@@ -1116,6 +1300,9 @@
     document.getElementById('restartBtn').addEventListener('click', () => {
       returnToHome();
     });
+
+    // Inicializar contador al cargar
+    updateHistoryBadge();
   </script>
 </body>
 </html>
