@@ -4,11 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Plan Fisio - Entrenamiento</title>
-  <!-- Icono y Manifest PWA/APK -->
+
+  <!-- Metadatos de Icono y Manifest PWA/APK -->
   <link rel="icon" type="image/png" href="img/icon.png" />
   <link rel="apple-touch-icon" href="img/icon.png" />
   <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#0b081a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
   <style>
     :root {
       --color-1: #3116eb;
@@ -529,9 +533,7 @@
       <span class="meta-tag">Seguimiento</span>
       <h2>Registro de Sesiones</h2>
       
-      <div class="history-list" id="historyItemsContainer">
-        <!-- Renderizado dinámico -->
-      </div>
+      <div class="history-list" id="historyItemsContainer"></div>
 
       <div class="exercise-action-area" style="margin-top: 0.5rem;">
         <button class="btn" id="backFromHistoryBtn">Volver al Inicio</button>
@@ -789,7 +791,7 @@
           wakeLock = await navigator.wakeLock.request('screen');
         }
       } catch (err) {
-        console.log('Wake Lock no soportado');
+        console.log('Wake Lock no disponible');
       }
     }
 
@@ -1188,9 +1190,7 @@
       finalTimeSummaryEl.textContent = `Tiempo Total: ${finalDuration}`;
       headerTitleEl.textContent = "Completado";
 
-      // Guardar sesión en el Historial Local
       saveSessionToHistory(currentSessionTitle, finalDuration);
-
       showScreen('finish');
     }
 
@@ -1301,8 +1301,19 @@
       returnToHome();
     });
 
-    // Inicializar contador al cargar
+    // Inicializar badge de historial
     updateHistoryBadge();
+  </script>
+
+  <!-- Registro del Service Worker para PWA y PWABuilder -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Service Worker registrado:', reg.scope))
+          .catch((err) => console.log('Fallo al registrar Service Worker:', err));
+      });
+    }
   </script>
 </body>
 </html>
