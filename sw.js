@@ -1,9 +1,10 @@
-const CACHE_NAME = 'fisio-cache-v1';
+const CACHE_NAME = 'fisio-cache-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './img/icon.png'
+  './img/icon-192.png',
+  './img/icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
